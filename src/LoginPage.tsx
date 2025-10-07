@@ -13,7 +13,7 @@ const Login = () => {
     console.log("Usuario:", username, "Contraseña:", password);
 
     if (username === "progra@web.com" && password === "kidA") {
-      navigate("/strem");
+      navigate("/feed");
     } else {
       setMensaje("Usuario o contraseña incorrectos");
     }
@@ -124,7 +124,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: "column",
     alignItems: "center",
     height: "100vh",
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffffff",
   },
   header: {
     position: "absolute",
@@ -135,7 +135,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "400px",
     padding: "30px",
     borderRadius: "12px",
-    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.05)",
+    boxShadow: "0px 4px 12px rgba(255, 255, 255, 0.05)",
     backgroundColor: "#fff",
     textAlign: "center",
     marginTop: "80px",
