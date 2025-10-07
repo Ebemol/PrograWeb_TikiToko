@@ -5,19 +5,22 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import SlideBar from './Componentes/SlideBar';
 
 const Feed = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-black min-vh-100">
       <div className="d-flex">
-        {/* Sidebar activo */}
         <SlideBar />
-
-        {/* Contenido principal */}
         <div className="flex-grow-1 d-flex flex-column">
           {/* Navbar */}
           <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
             <div className="container-fluid">
-              {/* Logo */}
-              <a className="navbar-brand d-flex align-items-center" href="#" style={{ paddingLeft: '40px' }}>
+              {/* Logo con navegación */}
+              <button
+                className="navbar-brand d-flex align-items-center"
+                onClick={() => navigate('/feed')}
+                style={{ paddingLeft: '40px', border: 'none', background: 'transparent' }}
+              >
                 <img
                   src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg"
                   alt="TikTok Banner"
@@ -25,14 +28,14 @@ const Feed = () => {
                   height="40"
                   className="d-inline-block align-text-top"
                 />
-              </a>
+              </button>
 
               {/* Usuario y monedas */}
               <div className="d-flex align-items-center ms-auto">
                 <button
                   className="btn d-flex align-items-center me-3 btn-monedas"
                   style={{ border: 'none', background: 'transparent', color: 'white' }}
-                  onClick={() => console.log('Monedas')}
+                  onClick={() => navigate('/shop')}
                 >
                   <img
                     src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-round-white-icon.png"
@@ -62,13 +65,22 @@ const Feed = () => {
             </div>
           </nav>
 
-          {/* Área de contenido */}
-          <div>
-<div className="px-4 pt-2">
-  <h1 className="text-white fw-bold mb-3">Transmisión destacada</h1>
-</div>
-         </div>
-          
+          {/* Área de contenido con estilo Ebemol */}
+          <div className="px-4 pt-4 pb-3 border-bottom border-secondary">
+            <h1
+              className="text-white fw-bold mb-0"
+              style={{
+                fontSize: '2.2rem',
+                letterSpacing: '0.5px',
+                textShadow: '0 0 6px rgba(255,255,255,0.2)',
+                borderLeft: '4px solid #EE1D52',
+                paddingLeft: '12px',
+              }}
+            >
+              Transmisión destacada
+            </h1>
+          </div>
+
           <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-start px-4 pt-2">
             <div className="ratio ratio-16x9" style={{ maxWidth: '900px', width: '100%', borderRadius: '12px', overflow: 'hidden' }}>
               <iframe
@@ -80,7 +92,6 @@ const Feed = () => {
             </div>
           </div>
         </div>
-        
       </div>
 
       <style>
