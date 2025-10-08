@@ -10,6 +10,7 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import TermsConditions from "./TermsConditions";
 import Shop from "./Shop";
 
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HashRouter>
