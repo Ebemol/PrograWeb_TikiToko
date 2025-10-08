@@ -1,7 +1,4 @@
 import React from "react";
-import ChatParticipacion from "./Componentes/Chatparticipacion";
-import Chatparticipacionnivel from "./Componentes/Chatparticipacionnivel";
-import NotificacionNivelStreamer from "./Componentes/NotificacionNivelStreamer";
 import { useNavigate } from "react-router-dom";
 
 const StreamPage = () => {
@@ -25,54 +22,57 @@ const StreamPage = () => {
               className="d-inline-block align-text-top"
             />
           </button>
-
-          <div className="d-flex align-items-center ms-auto">
-            <button
-              className="btn d-flex align-items-center btn-perfil"
-              style={{ border: 'none', background: 'transparent', color: 'white' }}
-              onClick={() => console.log('Perfil')}
-            >
-              <img
-                src="https://i.imgur.com/KcfC1AP.png"
-                alt="Perfil"
-                className="rounded-circle me-2"
-                width="40"
-                height="40"
-              />
-              <span className="fw-semibold texto-usuario">Progra</span>
-            </button>
-          </div>
         </div>
       </nav>
 
-      {/* VDO.Ninja Live Stream Embed */}
-      <div className="container py-4">
-        <h3 className="mb-3">🎤 Transmitiendo en vivo desde Ebemol</h3>
-        <div className="ratio ratio-16x9" style={{ borderRadius: "12px", overflow: "hidden" }}>
-          <iframe
-            src="https://vdo.ninja/?push=ebemolStream01&webcam&microphone&parent=localhost"
-            allow="camera; microphone"
-            frameBorder="0"
-            width="100%"
-            height="100%"
-            title="Transmisión Ebemol"
-          ></iframe>
-        </div>
-      </div>
-
-      {/* Notificación de nivel */}
-      <div className="container py-3">
-        <NotificacionNivelStreamer />
-      </div>
-
-      {/* Chat de participación */}
-      <div className="container py-3">
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <ChatParticipacion />
+      {/* Stream + Chat layout */}
+      <div className="container-fluid py-4">
+        <div className="row" style={{ height: "calc(100vh - 120px)" }}>
+          {/* Stream principal */}
+          <div className="col-lg-9 mb-4" style={{ height: "100%" }}>
+            <div className="ratio ratio-16x9" style={{ borderRadius: "12px", overflow: "hidden", height: "100%" }}>
+              <iframe
+                src="https://vdo.ninja/?push=ebemolStream01&webcam&microphone&parent=localhost"
+                allow="camera; microphone"
+                frameBorder="0"
+                width="100%"
+                height="100%"
+                title="Transmisión Ebemol"
+              ></iframe>
+            </div>
           </div>
-          <div className="col-md-6 mb-3">
-            <Chatparticipacionnivel />
+
+          {/* Chat al costado ocupando todo el espacio */}
+          <div className="col-lg-3" style={{ height: "100%" }}>
+            <div
+              style={{
+                backgroundColor: "#1e1e1e",
+                borderRadius: "12px",
+                padding: "0",
+                height: "100%",
+                overflow: "hidden",
+                boxShadow: "0 0 10px rgba(0,0,0,0.5)",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div style={{ padding: "10px", borderBottom: "1px solid #333" }}>
+                <h5 className="mb-0">💬 Chat en vivo</h5>
+              </div>
+              <iframe
+                src="https://vdo.ninja/?view=ebemolStream01&chat&novideo&noaudio&darkmode&transparent&parent=localhost"
+                allow="fullscreen"
+                frameBorder="0"
+                width="100%"
+                style={{
+                  flexGrow: 1,
+                  border: "none",
+                  borderRadius: "0 0 12px 12px",
+                  backgroundColor: "#1e1e1e",
+                }}
+                title="Chat VDO.Ninja"
+              ></iframe>
+            </div>
           </div>
         </div>
       </div>
