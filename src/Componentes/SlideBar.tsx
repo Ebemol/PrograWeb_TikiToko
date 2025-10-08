@@ -1,12 +1,10 @@
 import { useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
 import { useNavigate } from "react-router-dom";
 
-
 const Sidebar = () => {
-    const navigate = useNavigate(); 
+  const navigate = useNavigate(); 
   const [visible, setVisible] = useState(true);
 
   return (
@@ -60,6 +58,7 @@ const Sidebar = () => {
             `}
           </style>
 
+          {/* Parte superior */}
           <div>
             <button className="btn btn-ebemol w-100">
               <i className="bi bi-compass"></i> Descubrir Live
@@ -74,11 +73,22 @@ const Sidebar = () => {
             </button>
           </div>
 
-          <button
-            className="btn btn-ebemol w-100"
-            onClick={() => navigate("/terms")}
-          >
-            <i className="bi bi-file-earmark-text"></i> Terms and Conditions</button>
+          {/* Parte inferior */}
+          <div>
+            <button
+              className="btn btn-ebemol w-100"
+              onClick={() => navigate("/Us")}
+            >
+              <i className="bi bi-file-earmark-text"></i> Us
+            </button>
+
+            <button
+              className="btn btn-ebemol w-100"
+              onClick={() => navigate("/terms")}
+            >
+              <i className="bi bi-file-earmark-text"></i> Terms and Conditions
+            </button>
+          </div>
         </div>
       )}
     </div>
