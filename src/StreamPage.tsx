@@ -1,3 +1,9 @@
+import React from "react";
+import ChatParticipacion from "./Componentes/Chatparticipacion";
+import Chatparticipacionnivel from "./Componentes/Chatparticipacionnivel";
+import NotificacionNivelStreamer from "./Componentes/NotificacionNivelStreamer";
+
+
 const StreamPage = () => {
   return (
   <div style={{ textAlign: "center", marginTop: "40px" }}>
@@ -19,7 +25,16 @@ const StreamPage = () => {
     allowFullScreen
     style={{ borderRadius: "12px" }}
   ></iframe>
-</div>
+
+
+    
+      <NotificacionNivelStreamer />
+
+
+      <ChatParticipacion />
+      <Chatparticipacionnivel />
+
+      </div>
   );
 };
 

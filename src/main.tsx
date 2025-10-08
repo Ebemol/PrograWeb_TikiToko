@@ -15,7 +15,8 @@ createRoot(document.getElementById("root")!).render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/registro" element={<Register />} />
+        <Route path="/registro" element={<Register />} />o
+        -
         <Route path="/strem" element={<StreamPage />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/terms" element={<TermsConditions />} />
