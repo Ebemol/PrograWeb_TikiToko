@@ -118,7 +118,10 @@ const Shop = () => {
             <p className="text-light">
               Seleccionaste: <strong>{coinPackages[selectedIndex].coins}</strong> – {coinPackages[selectedIndex].price}
             </p>
-            <button className="btn btn-danger fw-bold px-4 py-2">
+            <button
+              className="btn btn-danger fw-bold px-4 py-2"
+              onClick={() => navigate('/pay')}
+            >
               Comprar ahora
             </button>
           </div>

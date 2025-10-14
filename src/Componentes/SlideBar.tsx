@@ -60,11 +60,11 @@ const Sidebar = () => {
 
           {/* Parte superior */}
           <div>
-            <button className="btn btn-ebemol w-100"    onClick={() => navigate('/strem')}>
+            <button className="btn btn-ebemol w-100"    >
               <i className="bi bi-compass"></i> Descubrir Live
             </button>
 
-            <button className="btn btn-ebemol w-100">
+            <button className="btn btn-ebemol w-100" onClick={() => navigate('/strem')}>
               <i className="bi bi-broadcast"></i> Emitir Live
             </button>
 
