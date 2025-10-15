@@ -5,7 +5,7 @@ const PayPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#ffffffff", minHeight: "100vh" }}>
       {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
 

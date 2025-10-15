@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import LiveTimer from "./Componentes/LiveTimer";
+import GiftOverlay from "./Componentes/GiftOverlay";
 
 const StreamPage = () => {
   const navigate = useNavigate();
 
+  const [overlayVisible, setOverlayVisible] = useState(false);
+  const [regaloActual, setRegaloActual] = useState("1 Rosa");
+  const [espectadorActual, setEspectadorActual] = useState("@Hernán");
+
+  const mostrarOverlay = () => {
+    setOverlayVisible(true);
+  };
+
   return (
-    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white" }}>
+    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white", position: "relative" }}>
       {/* Header */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
-        <div className="container-fluid">
+        <div className="container-fluid d-flex justify-content-between align-items-center">
           <button
             className="navbar-brand d-flex align-items-center"
             onClick={() => navigate('/feed')}
@@ -22,12 +32,23 @@ const StreamPage = () => {
               className="d-inline-block align-text-top"
             />
           </button>
+
+          {/* Contador visual */}
+          <LiveTimer />
         </div>
       </nav>
 
+      {/* Overlay de regalo */}
+      <GiftOverlay
+        visible={overlayVisible}
+        regalo={regaloActual}
+        espectador={espectadorActual}
+        onHide={() => setOverlayVisible(false)}
+      />
+
       {/* Stream + Chat layout */}
       <div className="container-fluid py-4">
-        <div className="row" style={{ height: "calc(100vh - 120px)" }}>
+        <div className="row" style={{ height: "calc(100vh - 160px)" }}>
           {/* Stream principal */}
           <div className="col-lg-9 mb-4" style={{ height: "100%" }}>
             <div className="ratio ratio-16x9" style={{ borderRadius: "12px", overflow: "hidden", height: "100%" }}>
@@ -42,7 +63,7 @@ const StreamPage = () => {
             </div>
           </div>
 
-          {/* Chat al costado ocupando todo el espacio */}
+          {/* Chat lateral */}
           <div className="col-lg-3" style={{ height: "100%" }}>
             <div
               style={{
@@ -57,7 +78,7 @@ const StreamPage = () => {
               }}
             >
               <div style={{ padding: "10px", borderBottom: "1px solid #333" }}>
-                <h5 className="mb-0">💬 Chat en vivo</h5>
+                <h5 className="mb-0">Chat en vivo</h5>
               </div>
               <iframe
                 src="https://vdo.ninja/?view=ebemolStream01&chat&novideo&noaudio&darkmode&transparent&parent=localhost"
@@ -74,6 +95,13 @@ const StreamPage = () => {
               ></iframe>
             </div>
           </div>
+        </div>
+
+        {/* Botón de prueba para simular regalo */}
+        <div className="text-center mt-4">
+          <button className="btn btn-danger" onClick={mostrarOverlay}>
+            Simular regalo
+          </button>
         </div>
       </div>
     </div>

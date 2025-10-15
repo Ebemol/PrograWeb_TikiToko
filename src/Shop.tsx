@@ -73,7 +73,7 @@ const Shop = () => {
 
       {/* Título */}
       <div className="text-center mt-5 mb-4">
-        <h1 className="fw-bold" style={{ color: '#fff' }}>Consigue Monedas</h1>
+        <h1 className="fw-bold" style={{ color: '#dddada92' }}>Consigue Monedas</h1>
       </div>
 
       {/* Matriz de paquetes */}
