@@ -3,19 +3,24 @@ import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import SlideBar from './Componentes/SlideBar';
-
+import Niveles from './Componentes/Niveles'; 
 const Feed = () => {
   const navigate = useNavigate();
+  const [showNiveles, setShowNiveles] = useState(false);
+
+  const handlePerfilClick = () => {
+    setShowNiveles(prev => !prev);
+  };
 
   return (
-    <div className="bg-black min-vh-100">
+    <div className="bg-black min-vh-100 position-relative">
       <div className="d-flex">
         <SlideBar />
         <div className="flex-grow-1 d-flex flex-column">
           {/* Navbar */}
           <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
             <div className="container-fluid">
-              {/* Logo con navegación */}
+              {/* Logo */}
               <button
                 className="navbar-brand d-flex align-items-center"
                 onClick={() => navigate('/feed')}
@@ -31,7 +36,7 @@ const Feed = () => {
               </button>
 
               {/* Usuario y monedas */}
-              <div className="d-flex align-items-center ms-auto">
+              <div className="d-flex align-items-center ms-auto position-relative">
                 <button
                   className="btn d-flex align-items-center me-3 btn-monedas"
                   style={{ border: 'none', background: 'transparent', color: 'white' }}
@@ -50,7 +55,7 @@ const Feed = () => {
                 <button
                   className="btn d-flex align-items-center btn-perfil"
                   style={{ border: 'none', background: 'transparent', color: 'white' }}
-                  onClick={() => console.log('Perfil')}
+                  onClick={handlePerfilClick}
                 >
                   <img
                     src="https://i.imgur.com/KcfC1AP.png"
@@ -61,11 +66,14 @@ const Feed = () => {
                   />
                   <span className="fw-semibold texto-usuario">Progra</span>
                 </button>
+
+                {/* Cuadro de niveles */}
+                {showNiveles && <Niveles currentXP={429} maxXP={1337} />}
               </div>
             </div>
           </nav>
 
-          {/* Área de contenido con estilo Ebemol */}
+          {/* Contenido */}
           <div className="px-4 pt-4 pb-3 border-bottom border-secondary">
             <h1
               className="text-white fw-bold mb-0"
@@ -94,6 +102,7 @@ const Feed = () => {
         </div>
       </div>
 
+      {/* Estilos */}
       <style>
         {`
           .btn-monedas:hover .icono-monedas {
