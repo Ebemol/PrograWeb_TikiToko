@@ -1,16 +1,25 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import SlideBar from './Componentes/SlideBar';
-import Niveles from './Componentes/Niveles'; 
+import MiniVentanaPerfil from './Componentes/Niveles';
+
 const Feed = () => {
   const navigate = useNavigate();
-  const [showNiveles, setShowNiveles] = useState(false);
+  const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
+  const perfilRef = useRef<HTMLDivElement>(null);
 
-  const handlePerfilClick = () => {
-    setShowNiveles(prev => !prev);
+  const handleOutsideClick = (e: MouseEvent) => {
+    if (perfilRef.current && !perfilRef.current.contains(e.target as Node)) {
+      setShowVentanaPerfil(false);
+    }
   };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   return (
     <div className="bg-black min-vh-100 position-relative">
@@ -36,7 +45,7 @@ const Feed = () => {
               </button>
 
               {/* Usuario y monedas */}
-              <div className="d-flex align-items-center ms-auto position-relative">
+              <div className="d-flex align-items-center ms-auto position-relative" ref={perfilRef}>
                 <button
                   className="btn d-flex align-items-center me-3 btn-monedas"
                   style={{ border: 'none', background: 'transparent', color: 'white' }}
@@ -55,7 +64,7 @@ const Feed = () => {
                 <button
                   className="btn d-flex align-items-center btn-perfil"
                   style={{ border: 'none', background: 'transparent', color: 'white' }}
-                  onClick={handlePerfilClick}
+                  onClick={() => setShowVentanaPerfil(prev => !prev)}
                 >
                   <img
                     src="https://i.imgur.com/KcfC1AP.png"
@@ -67,8 +76,13 @@ const Feed = () => {
                   <span className="fw-semibold texto-usuario">Progra</span>
                 </button>
 
-                {/* Cuadro de niveles */}
-                {showNiveles && <Niveles currentXP={429} maxXP={1337} />}
+                {showVentanaPerfil && (
+                  <MiniVentanaPerfil
+                    currentXP={429}
+                    maxXP={1337}
+                    onClose={() => setShowVentanaPerfil(false)}
+                  />
+                )}
               </div>
             </div>
           </nav>
