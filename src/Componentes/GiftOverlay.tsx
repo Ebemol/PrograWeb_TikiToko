@@ -29,13 +29,12 @@ const GiftOverlay: React.FC<Props> = ({ visible, regalo, espectador, onHide }) =
       top: "20%",
       left: "50%",
       transform: "translateX(-50%)",
-      backgroundColor: "#f33464ff",
+      backgroundColor: "#ff4d4d",
       color: "white",
       padding: "20px 30px",
       borderRadius: "12px",
       fontSize: "1.2rem",
       fontWeight: "bold",
-      boxShadow: "0 0 20px rgba(255,0,90,0.6)",
       animation: "fadeInOut 4s ease-in-out",
       zIndex: 9999
     }}>
