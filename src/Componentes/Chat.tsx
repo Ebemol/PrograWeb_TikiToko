@@ -7,18 +7,33 @@ interface Mensaje {
 
 function LiveChat() {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
+  const [nuevoTexto, setNuevoTexto] = useState<string>("");
 
   useEffect(() => {
-    // Mensajes simulados al cargar
     const mensajesIniciales: Mensaje[] = [
       { usuario: "@Hernán", texto: "Primero Aqui" },
       { usuario: "@Eber", texto: "Aguante Radiohead" },
       { usuario: "@Obi Wan", texto: "Hello There" },
       { usuario: "@Andrea", texto: "Alguien ve Bluey?" },
       { usuario: "@Mat_Trj", texto: "Prohibido las gordas" },
+      { usuario: "@aidex", texto: "Tiki Toko" },
+      { usuario: "@MarcoJRQ", texto: "No es mi culpa de que todo salga mal" }
     ];
     setMensajes(mensajesIniciales);
   }, []);
+
+  const enviarMensaje = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (nuevoTexto.trim() === "") return;
+
+    const nuevoMensaje: Mensaje = {
+      usuario: "@Eber",
+      texto: nuevoTexto.trim(),
+    };
+
+    setMensajes((prev) => [...prev, nuevoMensaje]);
+    setNuevoTexto("");
+  };
 
   return (
     <div style={{ position: "relative", height: "100%", width: "100%" }}>
@@ -63,6 +78,47 @@ function LiveChat() {
           </div>
         ))}
       </div>
+
+      {/* Formulario para enviar mensaje */}
+      <form
+        onSubmit={enviarMensaje}
+        style={{
+          position: "absolute",
+          bottom: "10px",
+          left: "10px",
+          zIndex: 20,
+          display: "flex",
+          gap: "10px",
+        }}
+      >
+        <input
+          type="text"
+          value={nuevoTexto}
+          onChange={(e) => setNuevoTexto(e.target.value)}
+          placeholder="Escribe tu mensaje..."
+          style={{
+            padding: "8px",
+            borderRadius: "6px",
+            border: "none",
+            backgroundColor: "#222",
+            color: "#fff",
+            width: "250px",
+          }}
+        />
+        <button
+          type="submit"
+          style={{
+            padding: "8px 12px",
+            borderRadius: "6px",
+            border: "none",
+            backgroundColor: "#ff4d4d",
+            color: "#fff",
+            cursor: "pointer",
+          }}
+        >
+          Enviar
+        </button>
+      </form>
     </div>
   );
 }
