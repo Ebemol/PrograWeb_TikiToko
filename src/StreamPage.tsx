@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveTimer from "./Componentes/LiveTimer";
 import GiftOverlay from "./Componentes/GiftOverlay";
+import Chat from "./Componentes/Chat";
 
-const StreamPage = () => {
+function StreamPage() {
   const navigate = useNavigate();
 
   const [overlayVisible, setOverlayVisible] = useState(false);
@@ -21,8 +22,8 @@ const StreamPage = () => {
         <div className="container-fluid d-flex justify-content-between align-items-center">
           <button
             className="navbar-brand d-flex align-items-center"
-            onClick={() => navigate('/feed')}
-            style={{ paddingLeft: '40px', border: 'none', background: 'transparent' }}
+            onClick={() => navigate("/feed")}
+            style={{ paddingLeft: "40px", border: "none", background: "transparent" }}
           >
             <img
               src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg"
@@ -63,7 +64,7 @@ const StreamPage = () => {
             </div>
           </div>
 
-          {/* Chat lateral */}
+          {/* Chat lateral usando componente */}
           <div className="col-lg-3" style={{ height: "100%" }}>
             <div
               style={{
@@ -80,19 +81,9 @@ const StreamPage = () => {
               <div style={{ padding: "10px", borderBottom: "1px solid #333" }}>
                 <h5 className="mb-0">Chat en vivo</h5>
               </div>
-              <iframe
-                src="https://vdo.ninja/?view=ebemolStream01&chat&novideo&noaudio&darkmode&transparent&parent=localhost"
-                allow="fullscreen"
-                frameBorder="0"
-                width="100%"
-                style={{
-                  flexGrow: 1,
-                  border: "none",
-                  borderRadius: "0 0 12px 12px",
-                  backgroundColor: "#1e1e1e",
-                }}
-                title="Chat VDO.Ninja"
-              ></iframe>
+              <div style={{ flexGrow: 1 }}>
+                <Chat />
+              </div>
             </div>
           </div>
         </div>
@@ -106,6 +97,6 @@ const StreamPage = () => {
       </div>
     </div>
   );
-};
+}
 
 export default StreamPage;
