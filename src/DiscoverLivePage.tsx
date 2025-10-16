@@ -1,18 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveChat from "./Componentes/Chat";
+import Niveles from "./Componentes/Niveles"; // ✅ Importamos el componente Niveles
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const DiscoverLivePage: React.FC = () => {
   const navigate = useNavigate();
-  const [puntos, setPuntos] = useState(0);
-  const [nivel, setNivel] = useState(1);
+  const [puntos, setPuntos] = useState(850);
+  const [nivel, setNivel] = useState(12);
+  const [mostrarNiveles, setMostrarNiveles] = useState(false);
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
   const [mostrarRegalos, setMostrarRegalos] = useState(false);
   const [likes, setLikes] = useState(1234);
   const [hasLiked, setHasLiked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+
+  const maxXP = 1000; // Límite de XP para siguiente nivel
 
   const regalos = [
     { nombre: "Rosa brillante", costo: "S/5.00", puntos: 10 },
@@ -26,7 +30,7 @@ const DiscoverLivePage: React.FC = () => {
     const nuevoXP = puntos + 1;
     setPuntos(nuevoXP);
 
-    const nuevoNivel = Math.floor(nuevoXP / 10) + 1;
+    const nuevoNivel = Math.floor(nuevoXP / 100) + 1;
     if (nuevoNivel > nivel) {
       setNivel(nuevoNivel);
       setMostrarNotificacion(true);
@@ -50,12 +54,11 @@ const DiscoverLivePage: React.FC = () => {
 
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white" }}>
- <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
+      <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
         <div className="container-fluid">
-          {/* Logo con navegación */}
           <button
             className="navbar-brand d-flex align-items-center"
-            onClick={() => navigate('/ViewerPage')}
+            onClick={() => navigate('/Feed')}
             style={{ paddingLeft: '40px', border: 'none', background: 'transparent' }}
           >
             <img
@@ -67,10 +70,11 @@ const DiscoverLivePage: React.FC = () => {
             />
           </button>
 
-          {/* Usuario y monedas */}
+          {/* Botones derecha */}
           <div className="d-flex align-items-center ms-auto">
-            <button onClick={() => navigate('/shop')}
-              className="btn d-flex align-items-center me-3 btn-monedas"
+            <button
+              onClick={() => navigate('/shop')}
+              className="btn d-flex align-items-center me-3"
               style={{ border: 'none', background: 'transparent', color: 'white' }}
             >
               <img
@@ -78,15 +82,16 @@ const DiscoverLivePage: React.FC = () => {
                 alt="Monedas"
                 width="24"
                 height="24"
-                className="me-1 icono-monedas"
+                className="me-1"
               />
-              <span className="fw-bold texto-monedas">120</span>
+              <span className="fw-bold">120</span>
             </button>
 
+            {/* Botón perfil que abre Niveles */}
             <button
-              className="btn d-flex align-items-center btn-perfil"
+              className="btn d-flex align-items-center"
               style={{ border: 'none', background: 'transparent', color: 'white' }}
-              onClick={() => console.log('Perfil')}
+              onClick={() => setMostrarNiveles(!mostrarNiveles)}
             >
               <img
                 src="https://i.imgur.com/KcfC1AP.png"
@@ -95,7 +100,7 @@ const DiscoverLivePage: React.FC = () => {
                 width="40"
                 height="40"
               />
-              <span className="fw-semibold texto-usuario">Progra</span>
+              <span className="fw-semibold">Progra</span>
             </button>
           </div>
         </div>
@@ -187,7 +192,7 @@ const DiscoverLivePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Chat + regalos + notificación */}
+          {/* Chat lateral */}
           <div className="col-lg-3" style={{ height: "100%", position: "relative" }}>
             {mostrarNotificacion && (
               <div
@@ -256,7 +261,6 @@ const DiscoverLivePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Panel de regalos corregido */}
             {mostrarRegalos && (
               <div
                 style={{
@@ -314,7 +318,15 @@ const DiscoverLivePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Animación CSS */}
+      {/* Componente Niveles (aparece al clickear perfil) */}
+      {mostrarNiveles && (
+        <Niveles
+          currentXP={puntos}
+          maxXP={maxXP}
+          onClose={() => setMostrarNiveles(false)}
+        />
+      )}
+
       <style>
         {`
           @keyframes fadeInOut {
@@ -322,10 +334,6 @@ const DiscoverLivePage: React.FC = () => {
             10% { opacity: 1; transform: translateY(0); }
             90% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-20px); }
-          }
-
-          .btn-outline-light:hover {
-            background-color: rgba(255, 255, 255, 0.1);
           }
         `}
       </style>

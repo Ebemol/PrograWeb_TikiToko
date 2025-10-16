@@ -62,7 +62,7 @@ const Sidebar = () => {
           <div>
             <button
   className="btn btn-ebemol w-100"
-  onClick={() => navigate("/descubrir")}
+  onClick={() => navigate("/ViewerPage")}
 >
   <i className="bi bi-compass"></i> Descubrir Live
 </button>
