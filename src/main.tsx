@@ -11,8 +11,7 @@ import TermsConditions from "./TermsConditions";
 import PayPage from "./PayPage";
 import Shop from "./Shop";
 import GiftPage from "./GiftPage";
-import DiscoverLivePage from "./DiscoverLivePage";
-import LoginPage from "./LoginPage";
+import DiscoverLivePage from "./DiscoverLivePage"
 
 
 
@@ -29,8 +28,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/Us" element={<Us/>}/>
         <Route path="/pay" element={<PayPage/>}/>
         <Route path="/regalos" element={<GiftPage />} />
-        <Route path="/descubrir" element={<DiscoverLivePage />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/ViewerPage" element={<DiscoverLivePage />} />
 
 
 
