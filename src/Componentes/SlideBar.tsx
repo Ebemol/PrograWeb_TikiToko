@@ -79,14 +79,14 @@ const Sidebar = () => {
               className="btn btn-ebemol w-100"
               onClick={() => navigate("/Us")}
             >
-              <i className="bi bi-file-earmark-text"></i> Us
+              <i className="bi bi-file-earmark-text"></i> Nosotros
             </button>
 
             <button
               className="btn btn-ebemol w-100"
               onClick={() => navigate("/terms")}
             >
-              <i className="bi bi-file-earmark-text"></i> Terms and Conditions
+              <i className="bi bi-file-earmark-text"></i> Terminos y condiciones
             </button>
           </div>
         </div>

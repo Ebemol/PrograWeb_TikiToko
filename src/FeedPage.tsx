@@ -8,7 +8,9 @@ import MiniVentanaPerfil from './Componentes/Niveles';
 const Feed = () => {
   const navigate = useNavigate();
   const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
+  const [volume, setVolume] = useState(0); // inicia apagado
   const perfilRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleOutsideClick = (e: MouseEvent) => {
     if (perfilRef.current && !perfilRef.current.contains(e.target as Node)) {
@@ -20,6 +22,15 @@ const Feed = () => {
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
+
+  const cambiarVolumen = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nuevoVolumen = parseFloat(e.target.value);
+    setVolume(nuevoVolumen);
+    if (videoRef.current) {
+      videoRef.current.volume = nuevoVolumen;
+      videoRef.current.muted = nuevoVolumen === 0;
+    }
+  };
 
   return (
     <div className="bg-black min-vh-100 position-relative">
@@ -104,13 +115,76 @@ const Feed = () => {
           </div>
 
           <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-start px-4 pt-2">
-            <div className="ratio ratio-16x9" style={{ maxWidth: '900px', width: '100%', borderRadius: '12px', overflow: 'hidden' }}>
-              <iframe
-                src="https://www.youtube.com/embed/fQiBogLpqjQ"
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></iframe>
+            <div
+              style={{
+                position: "relative",
+                maxWidth: "900px",
+                width: "100%",
+                aspectRatio: "16 / 9",
+                borderRadius: "12px",
+                overflow: "hidden",
+                backgroundColor: "#000",
+              }}
+            >
+              {/* Etiqueta EN VIVO */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "12px",
+                  left: "12px",
+                  backgroundColor: "#EE1D52",
+                  color: "#fff",
+                  padding: "4px 10px",
+                  borderRadius: "6px",
+                  fontWeight: "bold",
+                  fontSize: "14px",
+                  zIndex: 10,
+                }}
+              >
+                🔴 EN VIVO
+              </div>
+
+              {/* Slider de volumen estético */}
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={cambiarVolumen}
+                style={{
+                  position: "absolute",
+                  bottom: "12px",
+                  right: "12px",
+                  width: "100px",
+                  height: "6px",
+                  borderRadius: "4px",
+                  background: "#333",
+                  outline: "none",
+                  appearance: "none",
+                  zIndex: 10,
+                  accentColor: "#EE1D52",
+                }}
+              />
+
+              {/* Video local */}
+              <video
+                ref={videoRef}
+                src="/Multimedia/Destacado.mp4"
+                autoPlay
+                muted={true}
+                loop
+                playsInline
+                controls={false}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  pointerEvents: "none",
+                }}
+              >
+                Tu navegador no soporta el video.
+              </video>
             </div>
           </div>
         </div>
