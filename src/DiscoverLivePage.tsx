@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveChat from "./Componentes/Chat";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const DiscoverLivePage: React.FC = () => {
   const navigate = useNavigate();
@@ -8,6 +10,9 @@ const DiscoverLivePage: React.FC = () => {
   const [nivel, setNivel] = useState(1);
   const [mostrarNotificacion, setMostrarNotificacion] = useState(false);
   const [mostrarRegalos, setMostrarRegalos] = useState(false);
+  const [likes, setLikes] = useState(1234);
+  const [hasLiked, setHasLiked] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const regalos = [
     { nombre: "Rosa brillante", costo: "S/5.00", puntos: 10 },
@@ -34,15 +39,24 @@ const DiscoverLivePage: React.FC = () => {
     setTimeout(() => setMostrarNotificacion(false), 3000);
   };
 
+  const handleLike = () => {
+    setLikes((prev) => (hasLiked ? prev - 1 : prev + 1));
+    setHasLiked(!hasLiked);
+  };
+
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+  };
+
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white" }}>
-      {/* Barra superior */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
-        <div className="container-fluid d-flex justify-content-between align-items-center">
+ <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
+        <div className="container-fluid">
+          {/* Logo con navegación */}
           <button
             className="navbar-brand d-flex align-items-center"
-            onClick={() => navigate("/feed")}
-            style={{ paddingLeft: "40px", border: "none", background: "transparent" }}
+            onClick={() => navigate('/ViewerPage')}
+            style={{ paddingLeft: '40px', border: 'none', background: 'transparent' }}
           >
             <img
               src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg"
@@ -53,9 +67,36 @@ const DiscoverLivePage: React.FC = () => {
             />
           </button>
 
-          {/* Puntos por participación */}
-          <div className="text-white fw-bold">
-            Participación: {puntos} pts
+          {/* Usuario y monedas */}
+          <div className="d-flex align-items-center ms-auto">
+            <button onClick={() => navigate('/shop')}
+              className="btn d-flex align-items-center me-3 btn-monedas"
+              style={{ border: 'none', background: 'transparent', color: 'white' }}
+            >
+              <img
+                src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-round-white-icon.png"
+                alt="Monedas"
+                width="24"
+                height="24"
+                className="me-1 icono-monedas"
+              />
+              <span className="fw-bold texto-monedas">120</span>
+            </button>
+
+            <button
+              className="btn d-flex align-items-center btn-perfil"
+              style={{ border: 'none', background: 'transparent', color: 'white' }}
+              onClick={() => console.log('Perfil')}
+            >
+              <img
+                src="https://i.imgur.com/KcfC1AP.png"
+                alt="Perfil"
+                className="rounded-circle me-2"
+                width="40"
+                height="40"
+              />
+              <span className="fw-semibold texto-usuario">Progra</span>
+            </button>
           </div>
         </div>
       </nav>
@@ -63,28 +104,91 @@ const DiscoverLivePage: React.FC = () => {
       {/* Layout principal */}
       <div className="container-fluid py-4">
         <div className="row" style={{ height: "calc(100vh - 160px)" }}>
-          {/* Video */}
+          {/* Stream principal */}
           <div className="col-lg-9 mb-4" style={{ height: "100%" }}>
-            <div
-              className="ratio ratio-16x9"
-              style={{
-                borderRadius: "12px",
-                overflow: "hidden",
-                height: "100%",
-                backgroundColor: "#000",
-              }}
-            >
-              <video
-                src="/Multimedia/videoplayback.mp4"
-                controls
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
+            <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+              <div
+                className="ratio ratio-16x9"
+                style={{ borderRadius: "12px", overflow: "hidden", flexGrow: 1 }}
+              >
+                <iframe
+                  src="https://vdo.ninja/?view=ebemolStream01&scene&parent=localhost"
+                  allow="autoplay; fullscreen"
+                  frameBorder="0"
+                  width="100%"
+                  height="100%"
+                  title="Ver Transmisión"
+                ></iframe>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: "#1e1e1e",
+                  borderRadius: "12px",
+                  padding: "20px",
+                  marginTop: "15px",
+                }}
+              >
+                <div className="d-flex align-items-start justify-content-between">
+                  <div className="d-flex align-items-center">
+                    <img
+                      src="https://i.imgur.com/KcfC1AP.png"
+                      alt="Streamer"
+                      className="rounded-circle me-3"
+                      width="60"
+                      height="60"
+                      style={{ objectFit: "cover" }}
+                    />
+                    <div>
+                      <h4 className="mb-1 fw-bold">Ebemol</h4>
+                      <p className="mb-0 text-light" style={{ fontSize: "14px" }}>
+                        <span className="badge bg-danger me-2">🔴 EN VIVO</span>
+                        <span>2.5K espectadores</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-outline-light d-flex align-items-center gap-2"
+                      onClick={handleLike}
+                      style={{
+                        backgroundColor: hasLiked ? "#EE1D52" : "transparent",
+                        borderColor: hasLiked ? "#EE1D52" : "white",
+                      }}
+                    >
+                      <i className={`bi bi-heart${hasLiked ? "-fill" : ""}`}></i>
+                      <span>{likes}</span>
+                    </button>
+                    <button
+                      className="btn d-flex align-items-center gap-2"
+                      onClick={handleFollow}
+                      style={{
+                        backgroundColor: isFollowing ? "#555" : "#EE1D52",
+                        color: "white",
+                        border: "none",
+                      }}
+                    >
+                      {isFollowing ? "Siguiendo" : "Seguir"}
+                    </button>
+                    <button className="btn btn-outline-light">
+                      <i className="bi bi-share"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <h5 className="fw-semibold">🎮 Programando en React - Creando TikiToko</h5>
+                  <p className="text-light mb-0" style={{ fontSize: "14px" }}>
+                    Desarrollo web en vivo | React + TypeScript | Preguntas y respuestas
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Chat + regalos + notificación */}
           <div className="col-lg-3" style={{ height: "100%", position: "relative" }}>
-            {/* Notificación de nivel */}
             {mostrarNotificacion && (
               <div
                 style={{
@@ -142,7 +246,6 @@ const DiscoverLivePage: React.FC = () => {
                 <LiveChat onMensajeEnviado={sumarPunto} />
               </div>
 
-              {/* Botón para probar notificación */}
               <div style={{ padding: "10px", borderTop: "1px solid #333" }}>
                 <button
                   onClick={activarNotificacionManual}
@@ -153,7 +256,7 @@ const DiscoverLivePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Ventana flotante de regalos */}
+            {/* Panel de regalos corregido */}
             {mostrarRegalos && (
               <div
                 style={{
@@ -163,13 +266,12 @@ const DiscoverLivePage: React.FC = () => {
                   width: "280px",
                   backgroundColor: "#1e1e1e",
                   borderRadius: "12px",
-                  padding: "16px",
-                  boxShadow: "0 0 10px rgba(0,0,0,0.5)",
-                  zIndex: 30,
-                  color: "white",
+                  padding: "15px",
+                  boxShadow: "0 0 15px rgba(0,0,0,0.5)",
+                  zIndex: 1000,
                 }}
               >
-                <h5 className="mb-3">Regalos disponibles</h5>
+                <h6 className="mb-3 text-center fw-bold">🎁 Enviar regalo</h6>
                 <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                   {regalos.map((regalo, index) => (
                     <li
@@ -220,6 +322,10 @@ const DiscoverLivePage: React.FC = () => {
             10% { opacity: 1; transform: translateY(0); }
             90% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-20px); }
+          }
+
+          .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.1);
           }
         `}
       </style>
