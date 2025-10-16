@@ -25,7 +25,7 @@ const LiveTimer: React.FC = () => {
       fontWeight: "bold",
       fontSize: "0.95rem",
       color: "white",
-      boxShadow: "0 0 6px rgba(255, 0, 90, 0.5)"
+      boxShadow: "0 0 6px #EE1D52"
     }}>
        Tiempo en vivo: {formatTime(secondsElapsed)}
     </div>

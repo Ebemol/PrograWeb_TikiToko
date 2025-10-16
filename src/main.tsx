@@ -10,6 +10,8 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import TermsConditions from "./TermsConditions";
 import PayPage from "./PayPage";
 import Shop from "./Shop";
+import GiftPage from "./GiftPage";
+
 
 
 createRoot(document.getElementById("root")!).render(
@@ -24,6 +26,10 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/shop" element={<Shop/>}/>
         <Route path="/Us" element={<Us/>}/>
         <Route path="/pay" element={<PayPage/>}/>
+        <Route path="/regalos" element={<GiftPage />} />
+
+
+
       </Routes>
     </HashRouter>
   </StrictMode>

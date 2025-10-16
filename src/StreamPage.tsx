@@ -81,8 +81,19 @@ function StreamPage() {
               <div style={{ padding: "10px", borderBottom: "1px solid #333" }}>
                 <h5 className="mb-0">Chat en vivo</h5>
               </div>
+
               <div style={{ flexGrow: 1 }}>
                 <Chat />
+              </div>
+
+              {/* Botón para gestionar regalos */}
+              <div style={{ padding: "12px", borderTop: "1px solid #333", textAlign: "center" }}>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => navigate("/regalos")}
+                > 
+                Gestionar regalos
+                </button>
               </div>
             </div>
           </div>
