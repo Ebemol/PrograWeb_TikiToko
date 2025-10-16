@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import SlideBar from './Componentes/SlideBar';
 import MiniVentanaPerfil from './Componentes/Niveles';
-import Chat from './Componentes/Chat';
+import UserMenu from './Componentes/UserMenu';
 
 const Feed = () => {
   const navigate = useNavigate();
@@ -56,6 +56,7 @@ const Feed = () => {
               </button>
 
               <div className="d-flex align-items-center ms-auto position-relative" ref={perfilRef}>
+                {/* Monedas */}
                 <button
                   className="btn d-flex align-items-center me-3 btn-monedas"
                   style={{ border: 'none', background: 'transparent', color: 'white' }}
@@ -71,21 +72,14 @@ const Feed = () => {
                   <span className="fw-bold texto-monedas">120</span>
                 </button>
 
-                <button
-                  className="btn d-flex align-items-center btn-perfil"
-                  style={{ border: 'none', background: 'transparent', color: 'white' }}
-                  onClick={() => setShowVentanaPerfil(prev => !prev)}
-                >
-                  <img
-                    src="https://i.imgur.com/KcfC1AP.png"
-                    alt="Perfil"
-                    className="rounded-circle me-2"
-                    width="40"
-                    height="40"
-                  />
-                  <span className="fw-semibold texto-usuario">Progra</span>
-                </button>
+                {/* Menú de usuario */}
+                <UserMenu
+                  username="Progra"
+                  avatarUrl="https://i.imgur.com/KcfC1AP.png"
+                  onLogout={() => alert("Sesión cerrada")}
+                />
 
+                {/* Mini ventana de nivel */}
                 {showVentanaPerfil && (
                   <MiniVentanaPerfil
                     currentXP={429}
@@ -113,7 +107,7 @@ const Feed = () => {
             </h1>
           </div>
 
-          {/* Video + botón */}
+          {/* Video */}
           <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-start px-4 pt-2">
             <div
               style={{

@@ -12,6 +12,8 @@ import PayPage from "./PayPage";
 import Shop from "./Shop";
 import GiftPage from "./GiftPage";
 import DiscoverLivePage from "./DiscoverLivePage"
+import HerramientasPage from "./HerraminetaPage";
+import UserSettingsModal from "./UserSettingsModal";
 
 
 
@@ -24,11 +26,13 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/strem" element={<StreamPage />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/terms" element={<TermsConditions />} />
-        <Route path="/shop" element={<Shop/>}/>
-        <Route path="/Us" element={<Us/>}/>
-        <Route path="/pay" element={<PayPage/>}/>
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/Us" element={<Us />} />
+        <Route path="/pay" element={<PayPage />} />
         <Route path="/regalos" element={<GiftPage />} />
         <Route path="/ViewerPage" element={<DiscoverLivePage />} />
+        <Route path="/HerraminetaPage" element={<HerramientasPage />} />
+        <Route path="/UserSettingsModal" element={<UserSettingsModal />} />
 
 
 
