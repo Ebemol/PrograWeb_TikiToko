@@ -1,18 +1,26 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveTimer from "./Componentes/LiveTimer";
-import GiftOverlay from "./Componentes/GiftOverlay";
 import Chat from "./Componentes/Chat";
 
 function StreamPage() {
   const navigate = useNavigate();
 
-  const [overlayVisible, setOverlayVisible] = useState(false);
   const [regaloActual, setRegaloActual] = useState("1 Rosa");
   const [espectadorActual, setEspectadorActual] = useState("@Hernán");
 
+  const nivelStreamer = 2; // fijo, visual
+  const [mostrarNotiNivel, setMostrarNotiNivel] = useState(false);
+  const [mostrarNotiRegalo, setMostrarNotiRegalo] = useState(false);
+
   const mostrarOverlay = () => {
-    setOverlayVisible(true);
+    setMostrarNotiRegalo(true);
+    setTimeout(() => setMostrarNotiRegalo(false), 3000);
+  };
+
+  const activarNotificacionNivel = () => {
+    setMostrarNotiNivel(true);
+    setTimeout(() => setMostrarNotiNivel(false), 3000);
   };
 
   return (
@@ -39,13 +47,42 @@ function StreamPage() {
         </div>
       </nav>
 
-      {/* Overlay de regalo */}
-      <GiftOverlay
-        visible={overlayVisible}
-        regalo={regaloActual}
-        espectador={espectadorActual}
-        onHide={() => setOverlayVisible(false)}
-      />
+      {/* Notificaciones flotantes */}
+      <div style={{ position: "absolute", top: "80px", right: "20px", zIndex: 999 }}>
+        {mostrarNotiNivel && (
+          <div
+            style={{
+              backgroundColor: "#ff4d4d",
+              color: "white",
+              padding: "12px 20px",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              fontSize: "1rem",
+              boxShadow: "0 0 12px rgba(0,0,0,0.5)",
+              marginBottom: "10px",
+              animation: "fadeInOut 3s ease-in-out",
+            }}
+          >
+            🚀 ¡Estás en el nivel {nivelStreamer} como streamer!
+          </div>
+        )}
+        {mostrarNotiRegalo && (
+          <div
+            style={{
+              backgroundColor: "#ff4d4d",
+              color: "white",
+              padding: "12px 20px",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              fontSize: "1rem",
+              boxShadow: "0 0 12px rgba(0,0,0,0.5)",
+              animation: "fadeInOut 3s ease-in-out",
+            }}
+          >
+            🎁 ¡Recibiste un regalo de {espectadorActual}!
+          </div>
+        )}
+      </div>
 
       {/* Stream + Chat layout */}
       <div className="container-fluid py-4">
@@ -86,26 +123,37 @@ function StreamPage() {
                 <Chat />
               </div>
 
-              {/* Botón para gestionar regalos */}
-              <div style={{ padding: "12px", borderTop: "1px solid #333", textAlign: "center" }}>
+              {/* Botones debajo del chat */}
+              <div style={{ padding: "10px", borderTop: "1px solid #333" }}>
                 <button
-                  className="btn btn-danger"
-                  onClick={() => navigate("/regalos")}
-                > 
-                Gestionar regalos
+                  onClick={mostrarOverlay}
+                  className="btn btn-outline-light w-100 mb-2"
+                >
+                  Simular regalo
+                </button>
+                <button
+                  onClick={activarNotificacionNivel}
+                  className="btn btn-outline-light w-100"
+                >
+                  Simular subida de nivel
                 </button>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Botón de prueba para simular regalo */}
-        <div className="text-center mt-4">
-          <button className="btn btn-danger" onClick={mostrarOverlay}>
-            Simular regalo
-          </button>
-        </div>
       </div>
+
+      {/* Animación CSS */}
+      <style>
+        {`
+          @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+          }
+        `}
+      </style>
     </div>
   );
 }

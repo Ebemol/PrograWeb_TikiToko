@@ -4,11 +4,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import SlideBar from './Componentes/SlideBar';
 import MiniVentanaPerfil from './Componentes/Niveles';
+import Chat from './Componentes/Chat';
 
 const Feed = () => {
   const navigate = useNavigate();
   const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
-  const [volume, setVolume] = useState(0); // inicia apagado
+  const [volume, setVolume] = useState(0);
   const perfilRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -40,7 +41,6 @@ const Feed = () => {
           {/* Navbar */}
           <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
             <div className="container-fluid">
-              {/* Logo */}
               <button
                 className="navbar-brand d-flex align-items-center"
                 onClick={() => navigate('/feed')}
@@ -55,7 +55,6 @@ const Feed = () => {
                 />
               </button>
 
-              {/* Usuario y monedas */}
               <div className="d-flex align-items-center ms-auto position-relative" ref={perfilRef}>
                 <button
                   className="btn d-flex align-items-center me-3 btn-monedas"
@@ -98,7 +97,7 @@ const Feed = () => {
             </div>
           </nav>
 
-          {/* Contenido */}
+          {/* Título */}
           <div className="px-4 pt-4 pb-3 border-bottom border-secondary">
             <h1
               className="text-white fw-bold mb-0"
@@ -114,6 +113,7 @@ const Feed = () => {
             </h1>
           </div>
 
+          {/* Video + botón */}
           <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-start px-4 pt-2">
             <div
               style={{
@@ -126,7 +126,6 @@ const Feed = () => {
                 backgroundColor: "#000",
               }}
             >
-              {/* Etiqueta EN VIVO */}
               <div
                 style={{
                   position: "absolute",
@@ -144,7 +143,6 @@ const Feed = () => {
                 🔴 EN VIVO
               </div>
 
-              {/* Slider de volumen estético */}
               <input
                 type="range"
                 min="0"
@@ -167,7 +165,6 @@ const Feed = () => {
                 }}
               />
 
-              {/* Video local */}
               <video
                 ref={videoRef}
                 src="/Multimedia/Destacado.mp4"

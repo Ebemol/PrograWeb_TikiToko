@@ -1,5 +1,5 @@
-// Componentes/Niveles.tsx
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface NivelesProps {
   currentXP: number;
@@ -9,7 +9,13 @@ interface NivelesProps {
 
 const Niveles: React.FC<NivelesProps> = ({ currentXP, maxXP }) => {
   const percentage = Math.min((currentXP / maxXP) * 100, 100);
+  const navigate = useNavigate();
 
+  const cerrarSesion = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    navigate("/login");
+  };
 
   return (
     <div
@@ -27,25 +33,26 @@ const Niveles: React.FC<NivelesProps> = ({ currentXP, maxXP }) => {
       }}
     >
       <a href="https://tuperfil.com/progra" target="_blank" rel="noopener noreferrer">
-    <img
-      src="https://i.imgur.com/KcfC1AP.png"
-      alt="Perfil"
-      style={{
-        width: '60px',
-        height: '60px',
-        borderRadius: '50%',
-        objectFit: 'cover',
-        marginBottom: '12px',
-        display: 'block',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-        cursor: 'pointer'
-      }}
-    />
-    
-</a>
-      <h5 className="mb-2">Nivel 12</h5>
-      <p className="mb-1">EXP: {currentXP} / {maxXP}</p>
+        <img
+          src="https://i.imgur.com/KcfC1AP.png"
+          alt="Perfil"
+          style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            objectFit: 'cover',
+            marginBottom: '12px',
+            display: 'block',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            cursor: 'pointer'
+          }}
+        />
+      </a>
+
+      <h5 className="mb-2 text-center">Nivel 12</h5>
+      <p className="mb-1 text-center">EXP: {currentXP} / {maxXP}</p>
+
       <div className="progress" style={{ height: '10px' }}>
         <div
           className="progress-bar bg-danger"
@@ -56,9 +63,20 @@ const Niveles: React.FC<NivelesProps> = ({ currentXP, maxXP }) => {
           aria-valuemax={maxXP}
         />
       </div>
-      <p className="mt-2" style={{ fontSize: '0.9rem', color: '#ccc' }}>
+
+      <p className="mt-2 text-center" style={{ fontSize: '0.9rem', color: '#ccc' }}>
         ¡Te faltan {maxXP - currentXP} XP para subir de nivel!
       </p>
+
+      {/* Botón cerrar sesión */}
+      <button
+        onClick={cerrarSesion}
+        className="btn btn-outline-light w-100 mt-3"
+        style={{ fontSize: '0.9rem' }}
+      >
+        <i className="bi bi-box-arrow-right me-2" />
+        Cerrar sesión
+      </button>
     </div>
   );
 };

@@ -3,22 +3,29 @@ import React, { useEffect, useState } from "react";
 interface Mensaje {
   usuario: string;
   texto: string;
+  nivel: number;
 }
 
-function LiveChat() {
+interface LiveChatProps {
+  onMensajeEnviado?: () => void;
+}
+
+function LiveChat({ onMensajeEnviado }: LiveChatProps) {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoTexto, setNuevoTexto] = useState<string>("");
+  const [mostrarRegalos, setMostrarRegalos] = useState(false);
+
 
   useEffect(() => {
     const mensajesIniciales: Mensaje[] = [
-      { usuario: "@Hernán", texto: "Primero Aqui" },
-      { usuario: "@Eber", texto: "Aguante Radiohead" },
-      { usuario: "@Obi Wan", texto: "Hello There" },
-      { usuario: "@Andrea", texto: "Alguien ve Bluey?" },
-      { usuario: "@Mat_Trj", texto: "Prohibido las gordas" },
-      { usuario: "@aidex", texto: "Tiki Toko" },
-      { usuario: "@MarcoJRQ", texto: "No es mi culpa de que todo salga mal" }
-    ];
+    { usuario: "@Hernán", texto: "Primero Aqui", nivel: 8 },
+    { usuario: "@Eber", texto: "Aguante Radiohead", nivel: 12 },
+    { usuario: "@Obi Wan", texto: "Hello There", nivel: 5 },
+    { usuario: "@Andrea", texto: "Alguien ve Bluey?", nivel: 9 },
+    { usuario: "@RosaMG", texto: "Holis", nivel: 14 },
+    { usuario: "@aidex", texto: "Tiki Toko", nivel: 7 },
+    { usuario: "@MarcoJRQ", texto: "No es mi culpa de que todo salga mal", nivel: 10 }
+  ];
     setMensajes(mensajesIniciales);
   }, []);
 
@@ -27,17 +34,22 @@ function LiveChat() {
     if (nuevoTexto.trim() === "") return;
 
     const nuevoMensaje: Mensaje = {
-      usuario: "@Eber",
-      texto: nuevoTexto.trim(),
-    };
+  usuario: "@Eber",
+  texto: nuevoTexto.trim(),
+  nivel: 1 
+};
+
 
     setMensajes((prev) => [...prev, nuevoMensaje]);
     setNuevoTexto("");
+
+    if (onMensajeEnviado) {
+      onMensajeEnviado();
+    }
   };
 
   return (
     <div style={{ position: "relative", height: "100%", width: "100%" }}>
-      {/* Chat embebido */}
       <iframe
         allow="fullscreen"
         frameBorder="0"
@@ -51,7 +63,6 @@ function LiveChat() {
         title="Chat VDO.Ninja"
       ></iframe>
 
-      {/* Overlay de mensajes simulados */}
       <div
         style={{
           position: "absolute",
@@ -74,12 +85,17 @@ function LiveChat() {
               boxShadow: "0 0 4px rgba(0,0,0,0.4)",
             }}
           >
-            <strong style={{ color: "#ff4d4d" }}>{msg.usuario}</strong>: {msg.texto}
+            <strong style={{ color: "#ff4d4d" }}>
+  {msg.usuario}
+  <span style={{ color: "#ccc", fontSize: "0.85rem", marginLeft: "6px" }}>
+    • Nivel {msg.nivel}
+  </span>
+</strong>: {msg.texto}
+
           </div>
         ))}
       </div>
 
-      {/* Formulario para enviar mensaje */}
       <form
         onSubmit={enviarMensaje}
         style={{

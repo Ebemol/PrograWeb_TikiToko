@@ -19,26 +19,28 @@ const GiftOverlay: React.FC<Props> = ({ visible, regalo, espectador, onHide }) =
       }, 4000);
       return () => clearTimeout(timer);
     }
-  }, [visible]);
+  }, [visible, onHide]);
 
   if (!show) return null;
 
   return (
-    <div style={{
-      position: "absolute",
-      top: "20%",
-      left: "50%",
-      transform: "translateX(-50%)",
-      backgroundColor: "#ff4d4d",
-      color: "white",
-      padding: "20px 30px",
-      borderRadius: "12px",
-      fontSize: "1.2rem",
-      fontWeight: "bold",
-      animation: "fadeInOut 4s ease-in-out",
-      zIndex: 9999
-    }}>
-    {espectador} te ha enviado: <span style={{ textDecoration: "underline" }}>{regalo}</span>
+    <div
+      style={{
+        position: "absolute",
+        top: "20%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 9999,
+        animation: "fadeInOut 4s ease-in-out",
+      }}
+    >
+      {/* Aquí puedes reemplazar con una animación, imagen o efecto visual */}
+      <img
+        src="/assets/rosa-flotante.svg"
+        alt="Regalo visual"
+        style={{ width: "80px", height: "80px" }}
+      />
+
       <style>
         {`
           @keyframes fadeInOut {
@@ -54,4 +56,3 @@ const GiftOverlay: React.FC<Props> = ({ visible, regalo, espectador, onHide }) =
 };
 
 export default GiftOverlay;
-
