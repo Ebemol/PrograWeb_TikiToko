@@ -258,7 +258,7 @@ const HerramientasPage = () => {
         </button>
 
         <div className="menu-section">Información</div>
-        <button className="menu-btn" onClick={() => navigate("/about")}>
+        <button className="menu-btn" onClick={() => navigate("/us")}>
           <i className="bi bi-person-circle"></i> Sobre Nosotros
         </button>
         <button className="menu-btn" onClick={() => navigate("/terms")}>
