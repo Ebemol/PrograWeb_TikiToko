@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
+import UserMenu from './Componentes/UserMenu';
 
 const coinPackages = [
   { coins: 30, price: '1.35 PEN' },
@@ -53,20 +54,11 @@ const Shop = () => {
               <span className="fw-bold texto-monedas">120</span>
             </button>
 
-            <button
-              className="btn d-flex align-items-center btn-perfil"
-              style={{ border: 'none', background: 'transparent', color: 'white' }}
-              onClick={() => console.log('Perfil')}
-            >
-              <img
-                src="https://i.imgur.com/KcfC1AP.png"
-                alt="Perfil"
-                className="rounded-circle me-2"
-                width="40"
-                height="40"
-              />
-              <span className="fw-semibold texto-usuario">Progra</span>
-            </button>
+            {/* Menú de usuario con opción de cerrar sesión */}
+            <UserMenu
+              username="Progra"
+              avatarUrl="https://i.imgur.com/KcfC1AP.png"
+            />
           </div>
         </div>
       </nav>

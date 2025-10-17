@@ -6,10 +6,9 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 interface UserMenuProps {
   username: string;
   avatarUrl: string;
-  onLogout: () => void;
 }
 
-const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, onLogout }) => {
+const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl }) => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -24,6 +23,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, onLogout }) =>
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Función para manejar el logout
+  const handleLogout = () => {
+    // Aquí puedes agregar lógica adicional como limpiar localStorage
+    // localStorage.clear();
+    // sessionStorage.clear();
+    navigate('/');
+  };
 
   return (
     <div className="position-relative" ref={menuRef}>
@@ -96,7 +103,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl, onLogout }) =>
 
             <button
               className="list-group-item bg-transparent text-danger border-0 d-flex align-items-center fw-semibold py-3"
-              onClick={onLogout}
+              onClick={handleLogout}
             >
               <i className="bi bi-box-arrow-right me-3 fs-5"></i> Cerrar sesión
             </button>

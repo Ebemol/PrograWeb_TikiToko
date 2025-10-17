@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveChat from "./Componentes/Chat";
-import Niveles from "./Componentes/Niveles"; // ✅ Importamos el componente Niveles
+import Niveles from "./Componentes/Niveles";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const DiscoverLivePage: React.FC = () => {
   const navigate = useNavigate();
+  const [monedas, setMonedas] = useState(120);
   const [puntos, setPuntos] = useState(850);
   const [nivel, setNivel] = useState(12);
   const [mostrarNiveles, setMostrarNiveles] = useState(false);
@@ -15,27 +16,72 @@ const DiscoverLivePage: React.FC = () => {
   const [likes, setLikes] = useState(1234);
   const [hasLiked, setHasLiked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [mensajeError, setMensajeError] = useState("");
 
-  const maxXP = 1000; // Límite de XP para siguiente nivel
+  const maxXP = 1000;
 
   const regalos = [
-    { nombre: "Rosa brillante", costo: "S/5.00", puntos: 10 },
-    { nombre: "Café virtual", costo: "S/8.00", puntos: 15 },
-    { nombre: "Super sticker", costo: "S/12.00", puntos: 25 },
-    { nombre: "Confeti explosivo", costo: "S/20.00", puntos: 40 },
-    { nombre: "Corona dorada", costo: "S/35.00", puntos: 70 },
+    { nombre: "Rosa brillante", costo: 5, puntos: 10, emoji: "🌹" },
+    { nombre: "Café virtual", costo: 8, puntos: 15, emoji: "☕" },
+    { nombre: "Super sticker", costo: 12, puntos: 25, emoji: "⭐" },
+    { nombre: "Confeti explosivo", costo: 20, puntos: 40, emoji: "🎉" },
+    { nombre: "Corona dorada", costo: 35, puntos: 70, emoji: "👑" },
   ];
 
-  const sumarPunto = () => {
-    const nuevoXP = puntos + 1;
-    setPuntos(nuevoXP);
+  const enviarRegalo = (costo: number, puntosGanados: number, nombre: string) => {
+    if (monedas >= costo) {
+      // Descontar monedas
+      setMonedas(monedas - costo);
+      
+      // Sumar puntos
+      let nuevoXP = puntos + puntosGanados;
 
-    const nuevoNivel = Math.floor(nuevoXP / 100) + 1;
-    if (nuevoNivel > nivel) {
-      setNivel(nuevoNivel);
+      // Verificar subida de nivel (cuando XP >= maxXP)
+      if (nuevoXP >= maxXP) {
+        // Subir de nivel
+        const nivelesSubidos = Math.floor(nuevoXP / maxXP);
+        setNivel(nivel + nivelesSubidos);
+        
+        // Resetear XP con el excedente
+        nuevoXP = nuevoXP % maxXP;
+        
+        // Mostrar notificación de subida
+        setMostrarNotificacion(true);
+        setTimeout(() => setMostrarNotificacion(false), 3000);
+      }
+
+      setPuntos(nuevoXP);
+
+      // Limpiar error si había
+      setMensajeError("");
+      
+      // Mostrar mensaje de éxito
+      console.log(`✅ Regalo "${nombre}" enviado! -${costo} monedas, +${puntosGanados} puntos`);
+    } else {
+      // No tiene suficientes monedas
+      setMensajeError(`No tienes suficientes monedas. Necesitas ${costo} monedas.`);
+      setTimeout(() => setMensajeError(""), 3000);
+    }
+  };
+
+  const sumarPunto = () => {
+    let nuevoXP = puntos + 1;
+
+    // Verificar subida de nivel
+    if (nuevoXP >= maxXP) {
+      // Subir de nivel
+      const nivelesSubidos = Math.floor(nuevoXP / maxXP);
+      setNivel(nivel + nivelesSubidos);
+      
+      // Resetear XP con el excedente
+      nuevoXP = nuevoXP % maxXP;
+      
+      // Mostrar notificación
       setMostrarNotificacion(true);
       setTimeout(() => setMostrarNotificacion(false), 3000);
     }
+
+    setPuntos(nuevoXP);
   };
 
   const activarNotificacionManual = () => {
@@ -70,7 +116,6 @@ const DiscoverLivePage: React.FC = () => {
             />
           </button>
 
-          {/* Botones derecha */}
           <div className="d-flex align-items-center ms-auto">
             <button
               onClick={() => navigate('/shop')}
@@ -84,10 +129,9 @@ const DiscoverLivePage: React.FC = () => {
                 height="24"
                 className="me-1"
               />
-              <span className="fw-bold">120</span>
+              <span className="fw-bold">{monedas}</span>
             </button>
 
-            {/* Botón perfil que abre Niveles */}
             <button
               className="btn d-flex align-items-center"
               style={{ border: 'none', background: 'transparent', color: 'white' }}
@@ -106,10 +150,8 @@ const DiscoverLivePage: React.FC = () => {
         </div>
       </nav>
 
-      {/* Layout principal */}
       <div className="container-fluid py-4">
         <div className="row" style={{ height: "calc(100vh - 160px)" }}>
-          {/* Stream principal */}
           <div className="col-lg-9 mb-4" style={{ height: "100%" }}>
             <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
               <div
@@ -192,7 +234,6 @@ const DiscoverLivePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Chat lateral */}
           <div className="col-lg-3" style={{ height: "100%", position: "relative" }}>
             {mostrarNotificacion && (
               <div
@@ -212,6 +253,27 @@ const DiscoverLivePage: React.FC = () => {
                 }}
               >
                 🎉 ¡Subiste al nivel {nivel}!
+              </div>
+            )}
+
+            {mensajeError && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "10px",
+                  right: "10px",
+                  backgroundColor: "#dc3545",
+                  color: "white",
+                  padding: "12px 20px",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  fontSize: "0.9rem",
+                  boxShadow: "0 0 12px rgba(0,0,0,0.5)",
+                  zIndex: 999,
+                  animation: "fadeInOut 3s ease-in-out",
+                }}
+              >
+                ⚠️ {mensajeError}
               </div>
             )}
 
@@ -291,12 +353,13 @@ const DiscoverLivePage: React.FC = () => {
                       }}
                     >
                       <div>
-                        <strong>{regalo.nombre}</strong>
+                        <strong>{regalo.emoji} {regalo.nombre}</strong>
                         <div style={{ fontSize: "0.85rem", color: "#ccc" }}>
-                          Costo: {regalo.costo} • {regalo.puntos} pts
+                          Costo: {regalo.costo} monedas • {regalo.puntos} pts
                         </div>
                       </div>
                       <button
+                        onClick={() => enviarRegalo(regalo.costo, regalo.puntos, regalo.nombre)}
                         style={{
                           backgroundColor: "#ff4d4d",
                           border: "none",
@@ -318,7 +381,6 @@ const DiscoverLivePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Componente Niveles (aparece al clickear perfil) */}
       {mostrarNiveles && (
         <Niveles
           currentXP={puntos}

@@ -76,7 +76,6 @@ const Feed = () => {
                 <UserMenu
                   username="Progra"
                   avatarUrl="https://i.imgur.com/KcfC1AP.png"
-                  onLogout={() => alert("Sesión cerrada")}
                 />
 
                 {/* Mini ventana de nivel */}
