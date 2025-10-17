@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
     const team = [
     { name: 'Ebemol', image: '/Multimedia/Ebemol.jpg' },
     { name: 'Rosa MGalindo', image: '/Multimedia/Foto.png' },
-    { name: '1', image: 'https://images-ext-1.discordapp.net/external/oyHkGQhVxOkIH9FSku21D82kJ6VePJ_e7HBHUnuUHF4/%3Fs%3D400%26u%3Def07e34efdfa5804bdf9e4f539b7d088f0b14533%26v%3D4/https/avatars.githubusercontent.com/u/207105474?format=webp&width=600&height=600' },
+    { name: 'Benjamin Florees(no sabia que foto usar xd)', image: '/Multimedia/imagen 2222222.PNG' },
     { name: '2', image: 'https://images-ext-1.discordapp.net/external/oyHkGQhVxOkIH9FSku21D82kJ6VePJ_e7HBHUnuUHF4/%3Fs%3D400%26u%3Def07e34efdfa5804bdf9e4f539b7d088f0b14533%26v%3D4/https/avatars.githubusercontent.com/u/207105474?format=webp&width=600&height=600' },
     { name: '3', image: 'https://images-ext-1.discordapp.net/external/oyHkGQhVxOkIH9FSku21D82kJ6VePJ_e7HBHUnuUHF4/%3Fs%3D400%26u%3Def07e34efdfa5804bdf9e4f539b7d088f0b14533%26v%3D4/https/avatars.githubusercontent.com/u/207105474?format=webp&width=600&height=600' },
   ];
