@@ -137,6 +137,13 @@ function StreamPage() {
                 >
                   Simular subida de nivel
                 </button>
+
+                <button
+                  onClick={() => navigate("/regalos")}
+                  className="btn btn-outline-light w-100 mb-2"
+                >
+                  Editar regalos
+                </button>
               </div>
             </div>
           </div>

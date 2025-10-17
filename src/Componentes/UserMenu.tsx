@@ -24,11 +24,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Función para manejar el logout
+  // Logout
   const handleLogout = () => {
-    // Aquí puedes agregar lógica adicional como limpiar localStorage
-    // localStorage.clear();
-    // sessionStorage.clear();
+
     navigate('/');
   };
 
