@@ -55,7 +55,7 @@ const RegistroTransmision: React.FC = () => {
   return (
     <div
       style={{
-        backgroundColor: "#f0f8ff",
+        backgroundColor: "#3f4142ff",
         borderRadius: "12px",
         padding: "20px",
         marginTop: "25px",
