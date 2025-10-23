@@ -2,16 +2,19 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveTimer from "./Componentes/LiveTimer";
 import Chat from "./Componentes/Chat";
+import Header from "./Componentes/Header";
 
 function StreamPage() {
   const navigate = useNavigate();
 
   const [regaloActual, setRegaloActual] = useState("1 Rosa");
   const [espectadorActual, setEspectadorActual] = useState("@Hernán");
-
-  const nivelStreamer = 2; // fijo, visual
   const [mostrarNotiNivel, setMostrarNotiNivel] = useState(false);
   const [mostrarNotiRegalo, setMostrarNotiRegalo] = useState(false);
+
+  const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
+
+  const nivelStreamer = 2;
 
   const mostrarOverlay = () => {
     setMostrarNotiRegalo(true);
@@ -24,31 +27,19 @@ function StreamPage() {
   };
 
   return (
-    <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white", position: "relative" }}>
-      {/* Header */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
-        <div className="container-fluid d-flex justify-content-between align-items-center">
-          <button
-            className="navbar-brand d-flex align-items-center"
-            onClick={() => navigate("/feed")}
-            style={{ paddingLeft: "40px", border: "none", background: "transparent" }}
-          >
-            <img
-              src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg"
-              alt="TikTok Banner"
-              width="90"
-              height="40"
-              className="d-inline-block align-text-top"
-            />
-          </button>
-
-          {/* Contador visual */}
-          <LiveTimer />
-        </div>
-      </nav>
-
-      {/* Notificaciones flotantes */}
-      <div style={{ position: "absolute", top: "80px", right: "20px", zIndex: 999 }}>
+    <div
+      style={{
+        backgroundColor: "#121212",
+        minHeight: "100vh",
+        color: "white",
+        position: "relative",
+      }}
+    >
+      <Header
+        showVentanaPerfil={showVentanaPerfil}
+        setShowVentanaPerfil={setShowVentanaPerfil}
+      />
+       <div style={{ position: "absolute", top: "80px", right: "20px", zIndex: 999 }}>
         {mostrarNotiNivel && (
           <div
             style={{
@@ -84,12 +75,15 @@ function StreamPage() {
         )}
       </div>
 
-      {/* Stream + Chat layout */}
+      {/* Layout principal */}
       <div className="container-fluid py-4">
         <div className="row" style={{ height: "calc(100vh - 160px)" }}>
           {/* Stream principal */}
           <div className="col-lg-9 mb-4" style={{ height: "100%" }}>
-            <div className="ratio ratio-16x9" style={{ borderRadius: "12px", overflow: "hidden", height: "100%" }}>
+            <div
+              className="ratio ratio-16x9"
+              style={{ borderRadius: "12px", overflow: "hidden", height: "100%" }}
+            >
               <iframe
                 src="https://vdo.ninja/?push=ebemolStream01&webcam&microphone&parent=localhost"
                 allow="camera; microphone"
@@ -101,13 +95,12 @@ function StreamPage() {
             </div>
           </div>
 
-          {/* Chat lateral usando componente */}
+          {/* Chat lateral */}
           <div className="col-lg-3" style={{ height: "100%" }}>
             <div
               style={{
                 backgroundColor: "#1e1e1e",
                 borderRadius: "12px",
-                padding: "0",
                 height: "100%",
                 overflow: "hidden",
                 boxShadow: "0 0 10px rgba(0,0,0,0.5)",
@@ -136,13 +129,6 @@ function StreamPage() {
                   className="btn btn-outline-light w-100"
                 >
                   Simular subida de nivel
-                </button>
-
-                <button
-                  onClick={() => navigate("/regalos")}
-                  className="btn btn-outline-light w-100 mb-2"
-                >
-                  Editar regalos
                 </button>
               </div>
             </div>

@@ -67,16 +67,7 @@ const Niveles: React.FC<NivelesProps> = ({ currentXP, maxXP }) => {
       <p className="mt-2 text-center" style={{ fontSize: '0.9rem', color: '#ccc' }}>
         ¡Te faltan {maxXP - currentXP} XP para subir de nivel!
       </p>
-
-      {/* Botón cerrar sesión */}
-      <button
-        onClick={cerrarSesion}
-        className="btn btn-outline-light w-100 mt-3"
-        style={{ fontSize: '0.9rem' }}
-      >
-        <i className="bi bi-box-arrow-right me-2" />
-        Cerrar sesión
-      </button>
+ 
     </div>
   );
 };

@@ -4,6 +4,7 @@ import LiveChat from "./Componentes/Chat";
 import Niveles from "./Componentes/Niveles";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import Header from "./Componentes/Header";
 
 const DiscoverLivePage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const DiscoverLivePage: React.FC = () => {
   const [hasLiked, setHasLiked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [mensajeError, setMensajeError] = useState("");
+    const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
+  
 
   const maxXP = 1000;
 
@@ -100,56 +103,11 @@ const DiscoverLivePage: React.FC = () => {
 
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white" }}>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
-        <div className="container-fluid">
-          <button
-            className="navbar-brand d-flex align-items-center"
-            onClick={() => navigate('/Feed')}
-            style={{ paddingLeft: '40px', border: 'none', background: 'transparent' }}
-          >
-            <img
-              src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg"
-              alt="TikTok Banner"
-              width="90"
-              height="40"
-              className="d-inline-block align-text-top"
-            />
-          </button>
-
-          <div className="d-flex align-items-center ms-auto">
-            <button
-              onClick={() => navigate('/shop')}
-              className="btn d-flex align-items-center me-3"
-              style={{ border: 'none', background: 'transparent', color: 'white' }}
-            >
-              <img
-                src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-round-white-icon.png"
-                alt="Monedas"
-                width="24"
-                height="24"
-                className="me-1"
-              />
-              <span className="fw-bold">{monedas}</span>
-            </button>
-
-            <button
-              className="btn d-flex align-items-center"
-              style={{ border: 'none', background: 'transparent', color: 'white' }}
-              onClick={() => setMostrarNiveles(!mostrarNiveles)}
-            >
-              <img
-                src="https://i.imgur.com/KcfC1AP.png"
-                alt="Perfil"
-                className="rounded-circle me-2"
-                width="40"
-                height="40"
-              />
-              <span className="fw-semibold">Progra</span>
-            </button>
-          </div>
-        </div>
-      </nav>
-
+       <Header
+        showVentanaPerfil={showVentanaPerfil}
+        setShowVentanaPerfil={setShowVentanaPerfil}
+      />
+     
       <div className="container-fluid py-4">
         <div className="row" style={{ height: "calc(100vh - 160px)" }}>
           <div className="col-lg-9 mb-4" style={{ height: "100%" }}>
@@ -314,12 +272,7 @@ const DiscoverLivePage: React.FC = () => {
               </div>
 
               <div style={{ padding: "10px", borderTop: "1px solid #333" }}>
-                <button
-                  onClick={activarNotificacionManual}
-                  className="btn btn-outline-light w-100"
-                >
-                  Probar subida de nivel
-                </button>
+             
               </div>
             </div>
 

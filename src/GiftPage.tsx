@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Header from "./Componentes/Header";
 
 interface Gift {
   id: number;
@@ -13,6 +14,7 @@ const GiftPage: React.FC = () => {
   const navigate = useNavigate();
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [form, setForm] = useState<Gift>({
+
     id: 0,
     nombre: "",
     costo: 0,
@@ -20,7 +22,8 @@ const GiftPage: React.FC = () => {
     emoji: "🎁",
   });
   const [editingId, setEditingId] = useState<number | null>(null);
-
+  const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
+  
   const emojis = ["🎁", "🌹", "⭐", "💎", "🔥", "🎉", "💖", "🍀", "👑", "🧸", "🐍", "🎄", "🎅", "🎤", "⚽", "🏈", "🕯️", "🎨"];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

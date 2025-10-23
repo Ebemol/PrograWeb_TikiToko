@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
-import UserMenu from './Componentes/UserMenu';
+import Header from './Componentes/Header'; 
+import TikTokCoinIcon from './Componentes/Tiktokcoin';
 
 const coinPackages = [
   { coins: 30, price: '1.35 PEN' },
@@ -17,51 +18,12 @@ const coinPackages = [
 const Shop = () => {
   const navigate = useNavigate();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [showVentanaPerfil, setShowVentanaPerfil] = useState(false); // ✅ para Header
 
   return (
     <div style={{ backgroundColor: '#121212', color: 'white', minHeight: '100vh' }}>
-      {/* Header */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
-        <div className="container-fluid">
-          {/* Logo con navegación */}
-          <button
-            className="navbar-brand d-flex align-items-center"
-            onClick={() => navigate('/feed')}
-            style={{ paddingLeft: '40px', border: 'none', background: 'transparent' }}
-          >
-            <img
-              src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg"
-              alt="TikTok Banner"
-              width="90"
-              height="40"
-              className="d-inline-block align-text-top"
-            />
-          </button>
-
-          {/* Usuario y monedas */}
-          <div className="d-flex align-items-center ms-auto">
-            <button
-              className="btn d-flex align-items-center me-3 btn-monedas"
-              style={{ border: 'none', background: 'transparent', color: 'white' }}
-            >
-              <img
-                src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-round-white-icon.png"
-                alt="Monedas"
-                width="24"
-                height="24"
-                className="me-1 icono-monedas"
-              />
-              <span className="fw-bold texto-monedas">120</span>
-            </button>
-
-            {/* Menú de usuario con opción de cerrar sesión */}
-            <UserMenu
-              username="Progra"
-              avatarUrl="https://i.imgur.com/KcfC1AP.png"
-            />
-          </div>
-        </div>
-      </nav>
+      {/*  Header */}
+      <Header showVentanaPerfil={showVentanaPerfil} setShowVentanaPerfil={setShowVentanaPerfil} />
 
       {/* Título */}
       <div className="text-center mt-5 mb-4">
@@ -87,13 +49,8 @@ const Shop = () => {
                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
                   onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  <img
-                    src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/tiktok-round-white-icon.png"
-                    alt="Moneda"
-                    width="40"
-                    height="40"
-                    className="mb-2"
-                  />
+          <TikTokCoinIcon size={24} className="me-1 icono-monedas" />
+
                   <div className="fw-bold text-white text-center">
                     {typeof pkg.coins === 'number' ? `${pkg.coins} monedas` : pkg.coins}
                   </div>
