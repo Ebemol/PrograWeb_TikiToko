@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
           style={{ paddingLeft: "40px", border: "none", background: "transparent" }}
         >
           <img
-            src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg"
+            src="/Multimedia/tiktok-banner.svg"
             alt="TikTok Banner"
             width="90"
             height="40"

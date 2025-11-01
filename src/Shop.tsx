@@ -18,7 +18,7 @@ const coinPackages = [
 const Shop = () => {
   const navigate = useNavigate();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [showVentanaPerfil, setShowVentanaPerfil] = useState(false); // ✅ para Header
+  const [showVentanaPerfil, setShowVentanaPerfil] = useState(false); 
 
   return (
     <div style={{ backgroundColor: '#121212', color: 'white', minHeight: '100vh' }}>
