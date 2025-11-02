@@ -26,6 +26,15 @@ const Register = () => {
 
                 {/* Opciones de login rápido */}
                 <div style={styles.socialContainer}>
+    <button
+                        style={styles.socialBtn}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}
+
+                                onClick={() => navigate("/Create")}
+> Crear Cuenta</button>
+
+
                     <button style={styles.socialBtn}
                         onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>Usar Código QR</button>

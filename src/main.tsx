@@ -14,6 +14,7 @@ import GiftPage from "./GiftPage";
 import DiscoverLivePage from "./DiscoverLivePage"
 import HerramientasPage from "./HerraminetaPage";
 import UserSettingsModal from "./UserSettingsModal";
+import Create from "./Create"
 
 
 
@@ -33,6 +34,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/ViewerPage" element={<DiscoverLivePage />} />
         <Route path="/HerraminetaPage" element={<HerramientasPage />} />
         <Route path="/UserSettingsModal" element={<UserSettingsModal />} />
+        <Route path="/Create" element={<Create/>}/>
 
 
 
