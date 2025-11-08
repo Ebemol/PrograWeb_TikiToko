@@ -5,18 +5,16 @@ import Login from "./LoginPage";
 import Register from "./Register";
 import Us from "./Us";
 import Feed from "./FeedPage";
-import "../node_modules/bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/css/bootstrap.css";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import TermsConditions from "./TermsConditions";
 import PayPage from "./PayPage";
 import Shop from "./Shop";
 import GiftPage from "./GiftPage";
-import DiscoverLivePage from "./DiscoverLivePage"
+import DiscoverLivePage from "./DiscoverLivePage";
 import HerramientasPage from "./HerraminetaPage";
 import UserSettingsModal from "./UserSettingsModal";
-import Create from "./Create"
-
-
+import Create from "./Create";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -24,20 +22,17 @@ createRoot(document.getElementById("root")!).render(
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/registro" element={<Register />} />
-        <Route path="/strem" element={<StreamPage />} />
+        <Route path="/stream" element={<StreamPage />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/terms" element={<TermsConditions />} />
         <Route path="/shop" element={<Shop />} />
-        <Route path="/Us" element={<Us />} />
+        <Route path="/us" element={<Us />} />
         <Route path="/pay" element={<PayPage />} />
         <Route path="/regalos" element={<GiftPage />} />
-        <Route path="/ViewerPage" element={<DiscoverLivePage />} />
-        <Route path="/HerraminetaPage" element={<HerramientasPage />} />
-        <Route path="/UserSettingsModal" element={<UserSettingsModal />} />
-        <Route path="/Create" element={<Create/>}/>
-
-
-
+        <Route path="/viewer" element={<DiscoverLivePage />} />
+        <Route path="/herramientas" element={<HerramientasPage />} />
+        <Route path="/settings" element={<UserSettingsModal />} />
+        <Route path="/create" element={<Create />} />
       </Routes>
     </HashRouter>
   </StrictMode>

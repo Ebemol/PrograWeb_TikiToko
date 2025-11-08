@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 const Create = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setname] = useState("");
+  const [email, setEmail] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [cuentaCreada, setCuentaCreada] = useState(false);
   const navigate = useNavigate();
@@ -55,9 +57,24 @@ const Create = () => {
       <form onSubmit={handleSubmit} style={styles.form}>
         <h2 style={styles.title}>Crear cuenta</h2>
         <div>Ingrese sus datos para Continuar</div>
+        <input type="email"
+          placeholder="Ingrese Su Correo"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={styles.input}
+        />
+
         <input
-          type="email"
-          placeholder="Correo electrónico"
+          type="text"
+          placeholder="Ingrese Su nombre"
+          value={name}
+          onChange={(e) => setname(e.target.value)}
+          style={styles.input}
+        />
+
+        <input
+          type="text"
+          placeholder="Ingrese Su nombre de ususario"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           style={styles.input}
@@ -70,6 +87,65 @@ const Create = () => {
           onChange={(e) => setPassword(e.target.value)}
           style={styles.input}
         />
+        <div>Ingreses su fecha de nacimiento</div>
+        <input
+          type="date"
+          className="form-control"
+          id="fechaNacimiento"
+          name="fechaNacimiento"
+          style={styles.input}
+          required></input>
+
+        <div className="container">
+          <div className="d-flex gap-3 align-items-center justify-content-center my-3">
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="opcion"
+                id="opcion1"
+                value="hombre"
+              />
+              <label className="form-check-label fw-semibold text-primary" htmlFor="opcion1">
+                Hombre
+              </label>
+            </div>
+
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="opcion"
+                id="opcion2"
+                value="mujer"
+              />
+              <label className="form-check-label fw-semibold text-danger" htmlFor="opcion2">
+                Mujer
+              </label>
+            </div>
+
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="opcion"
+                id="opcion3"
+                value="nah"
+              />
+              <label className="form-check-label fw-semibold text-danger" htmlFor="opcion3">
+                Prefiero no detallarlo
+              </label>
+            </div>
+
+
+
+
+          </div>
+
+
+
+        </div>
+
 
         <button type="submit" style={styles.button}>
           Registrarse
