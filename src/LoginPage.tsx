@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -7,17 +7,48 @@ const Login = () => {
   const [mensaje, setMensaje] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        navigate("/feed"); // Si ya hay sesión, redirige automáticamente
+      }
+    }, [navigate]);
 
-    console.log("Usuario:", username, "Contraseña:", password);
 
-    if (username === "progra@web.com" && password === "kidA") {
+
+
+    try {
+      const response = await fetch("http://localhost:5002/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: username,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMensaje(data.error || "Usuario o contraseña incorrectos");
+        return;
+      }
+
+      // Guardar token y user info
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
       navigate("/feed");
-    } else {
-      setMensaje("Usuario o contraseña incorrectos");
+    } catch (error) {
+      console.error("Error:", error);
+      setMensaje("Error conectándose con el servidor");
     }
   };
+
 
   return (
     <div style={styles.container}>
@@ -33,15 +64,15 @@ const Login = () => {
         <h2 style={styles.title}>Inicia sesión en TikTok</h2>
 
         <div style={styles.socialContainer}>
-          <button style={styles.socialBtn}    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>Usar Código QR</button>
-          <button style={styles.socialBtnSmall}   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>
+          <button style={styles.socialBtn} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>Usar Código QR</button>
+          <button style={styles.socialBtnSmall} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>
             Usar teléfono, correo electrónico o nombre de usuario
           </button>
 
-          <button style={styles.socialBtn}    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>
+          <button style={styles.socialBtn} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg"
               alt="Facebook"
@@ -50,8 +81,8 @@ const Login = () => {
             Continuar con Facebook
           </button>
 
-          <button style={styles.socialBtn}   onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>
+          <button style={styles.socialBtn} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>
             <img
               src="https://pluspng.com/img-png/google-logo-png-open-2000.png"
               alt="Google"
@@ -61,8 +92,8 @@ const Login = () => {
           </button>
 
           <button style={styles.socialBtn}
-             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#fff")}>
             <img
               src="https://static.vecteezy.com/system/resources/previews/002/520/838/original/apple-logo-black-isolated-on-transparent-background-free-vector.jpg"
               alt="Apple"

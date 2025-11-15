@@ -44,7 +44,7 @@ const Sidebar = () => {
             backdropFilter: "blur(4px)",
             WebkitBackdropFilter: "blur(4px)",
             boxShadow: "2px 0 6px rgba(0,0,0,0.3)",
-            zIndex: 2, // debajo del header si este tiene un zIndex mayor
+            zIndex: 2,
           }}
         >
           <style>
@@ -110,31 +110,31 @@ const Sidebar = () => {
           <div>
             <button
               className="btn btn-ebemol w-100"
-              onClick={() => navigate("/ViewerPage")}
+              onClick={() => navigate("/viewer")}
             >
               <i className="bi bi-compass"></i> <span>Descubrir Live</span>
             </button>
 
             <button
               className="btn btn-ebemol w-100"
-              onClick={() => navigate("/strem")}
+              onClick={() => navigate("/stream")}
             >
               <i className="bi bi-broadcast"></i> <span>Emitir Live</span>
             </button>
 
             <button
               className="btn btn-ebemol w-100"
-              onClick={() => navigate("/HerraminetaPage")}
+              onClick={() => navigate("/herramientas")}
             >
               <i className="bi bi-tools"></i> <span>Herramientas</span>
             </button>
           </div>
 
-          {/* Parte inferior (más pequeña y discreta) */}
+          {/* Parte inferior */}
           <div className="mt-auto">
             <button
               className="btn btn-small w-100 text-start text-white"
-              onClick={() => navigate("/Us")}
+              onClick={() => navigate("/us")}
             >
               <i className="bi bi-info-circle me-2"></i> Nosotros
             </button>

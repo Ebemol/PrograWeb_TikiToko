@@ -12,7 +12,8 @@ import PayPage from "./PayPage";
 import Shop from "./Shop";
 import GiftPage from "./GiftPage";
 import DiscoverLivePage from "./DiscoverLivePage";
-import HerramientasPage from "./HerraminetaPage";
+import HerramientasPage from "./HerramientaPage"; 
+
 import UserSettingsModal from "./UserSettingsModal";
 import Create from "./Create";
 
