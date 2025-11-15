@@ -1,23 +1,28 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [email,setEmail] =useState("");
   const navigate = useNavigate();
+
+    useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/feed");
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    useEffect(() => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        navigate("/feed"); // Si ya hay sesión, redirige automáticamente
-      }
-    }, [navigate]);
 
-
-
+    // Validar campos vacíos
+    if (!username || !password) {
+      setMensaje("Debes completar todos los campos");
+      return;
+    }
 
     try {
       const response = await fetch("http://localhost:5002/login", {
@@ -26,7 +31,7 @@ const Login = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: username,
+          email: username, 
           password: password,
         }),
       });
@@ -38,17 +43,15 @@ const Login = () => {
         return;
       }
 
-      // Guardar token y user info
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      navigate("/feed");
+      navigate("/feed"); 
     } catch (error) {
       console.error("Error:", error);
       setMensaje("Error conectándose con el servidor");
     }
   };
-
 
   return (
     <div style={styles.container}>
