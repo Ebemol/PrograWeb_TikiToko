@@ -1,8 +1,9 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserMenu from "./UserMenu";
 import MiniVentanaPerfil from "./Niveles";
 import TikTokCoinIcon from "./Tiktokcoin";
+
 interface HeaderProps {
   showVentanaPerfil: boolean;
   setShowVentanaPerfil: (value: boolean) => void;
@@ -11,6 +12,34 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil }) => {
   const navigate = useNavigate();
   const perfilRef = useRef<HTMLDivElement>(null);
+
+  /* ============================
+        🔥 NUEVO: Coins dinámicas
+     ============================ */
+  const [coins, setCoins] = useState<number>(0);
+
+  useEffect(() => {
+    // Cargar coins de localStorage al iniciar
+    const stored = localStorage.getItem("currentUser");
+    if (stored) {
+      try {
+        const user = JSON.parse(stored);
+        setCoins(user.coins || 0);
+      } catch {}
+    }
+
+    // Escuchar cambios en localStorage
+    const onStorage = () => {
+      const s = localStorage.getItem("currentUser");
+      if (s) {
+        const u = JSON.parse(s);
+        setCoins(u.coins || 0);
+      }
+    };
+
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   const handleOutsideClick = (e: MouseEvent) => {
     if (perfilRef.current && !perfilRef.current.contains(e.target as Node)) {
@@ -26,6 +55,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
       <div className="container-fluid">
+
         {/* Logo */}
         <button
           className="navbar-brand d-flex align-items-center"
@@ -43,15 +73,15 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
 
         {/* Zona derecha */}
         <div className="d-flex align-items-center ms-auto position-relative" ref={perfilRef}>
-          {/* Botón de monedas */}
+
+          {/* 🔥 Botón de monedas (AHORA DINÁMICO) */}
           <button
             className="btn d-flex align-items-center me-3 btn-monedas"
             style={{ border: "none", background: "transparent", color: "white" }}
             onClick={() => navigate("/shop")}
           >
             <TikTokCoinIcon size={24} className="me-1 icono-monedas" />
-
-            <span className="fw-bold texto-monedas">120</span>
+            <span className="fw-bold texto-monedas">{coins}</span>
           </button>
 
           {/* Menú de usuario */}
@@ -61,7 +91,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
             onLogout={() => alert("Sesión cerrada")}
           />
 
-          {/* Mini ventana de perfil / nivel */}
+          {/* Mini ventana de perfil */}
           {showVentanaPerfil && (
             <MiniVentanaPerfil
               currentXP={429}
