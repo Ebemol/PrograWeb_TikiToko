@@ -18,19 +18,22 @@ const coinPackages = [
 const Shop = () => {
   const navigate = useNavigate();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [customAmount, setCustomAmount] = useState(''); 
   const [showVentanaPerfil, setShowVentanaPerfil] = useState(false); 
+
+  const handleSelected = (index: number) => {
+    setSelectedIndex(index);
+    if (coinPackages[index].coins !== 'Personalizar') setCustomAmount('');
+  }
 
   return (
     <div style={{ backgroundColor: '#121212', color: 'white', minHeight: '100vh' }}>
-      {/*  Header */}
       <Header showVentanaPerfil={showVentanaPerfil} setShowVentanaPerfil={setShowVentanaPerfil} />
 
-      {/* Título */}
       <div className="text-center mt-5 mb-4">
         <h1 className="fw-bold" style={{ color: '#dddada92' }}>Consigue Monedas</h1>
       </div>
 
-      {/* Matriz de paquetes */}
       <div className="container">
         <div className="row g-4 justify-content-center">
           {coinPackages.map((pkg, index) => {
@@ -45,12 +48,11 @@ const Shop = () => {
                     cursor: 'pointer',
                     transition: 'transform 0.2s',
                   }}
-                  onClick={() => setSelectedIndex(index)}
+                  onClick={() => handleSelected(index)}
                   onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
                   onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                 >
-          <TikTokCoinIcon size={24} className="me-1 icono-monedas" />
-
+                  <TikTokCoinIcon size={24} className="me-1 icono-monedas" />
                   <div className="fw-bold text-white text-center">
                     {typeof pkg.coins === 'number' ? `${pkg.coins} monedas` : pkg.coins}
                   </div>
@@ -61,15 +63,44 @@ const Shop = () => {
           })}
         </div>
 
+        {/* Input personalizado */}
+       {selectedIndex !== null && coinPackages[selectedIndex].coins === 'Personalizar' && (
+  <div className="text-end mt-3">
+    <input
+      type="number"
+      placeholder="Ingresa tu importe"
+      value={customAmount}
+      onChange={e => setCustomAmount(e.target.value)}
+      className="form-control text-white p-2"
+      style={{
+        backgroundColor: '#1c1c1c',
+        borderRadius: '1px',
+        width: '100%',      // más compacto
+        marginLeft: 'auto', // pega a la derecha
+        maxWidth: '300px', // evita que se haga muy grande en pantallas grandes
+      }}
+    />
+    <small className="d-block mt-1 text-white">
+      Puedes ingresar cualquier importe grande
+    </small>
+  </div>
+)}
+
+
         {/* Confirmación */}
         {selectedIndex !== null && (
-          <div className="text-center mt-5">
-            <p className="text-light">
-              Seleccionaste: <strong>{coinPackages[selectedIndex].coins}</strong> – {coinPackages[selectedIndex].price}
+          <div className="text-center mt-3">
+            <p className="text-light fs-13">
+              Seleccionaste: <strong>
+                {coinPackages[selectedIndex].coins === 'Personalizar' 
+                  ? customAmount || '–' 
+                  : coinPackages[selectedIndex].coins}
+              </strong> – {coinPackages[selectedIndex].price}
             </p>
             <button
-              className="btn btn-danger fw-bold px-4 py-2"
+              className="btn btn-danger fw-bold px-5 py-2 rounded-pill"
               onClick={() => navigate('/pay')}
+              disabled={coinPackages[selectedIndex].coins === 'Personalizar' && !customAmount}
             >
               Comprar ahora
             </button>
