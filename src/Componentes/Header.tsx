@@ -13,33 +13,47 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
   const navigate = useNavigate();
   const perfilRef = useRef<HTMLDivElement>(null);
 
-  /* ============================
-        🔥 NUEVO: Coins dinámicas
-     ============================ */
   const [coins, setCoins] = useState<number>(0);
+  // Opcional: Estados para nombre y avatar si quieres que también vengan del back
+  const [username, setUsername] = useState<string>("Usuario");
 
   useEffect(() => {
-    // Cargar coins de localStorage al iniciar
-    const stored = localStorage.getItem("currentUser");
-    if (stored) {
-      try {
-        const user = JSON.parse(stored);
-        setCoins(user.coins || 0);
-      } catch {}
-    }
+    const cargarDatosDelBackend = async () => {
+      // 1. Obtener el ID desde el LocalStorage
+      const stored = localStorage.getItem("user");
+      
+      if (stored) {
+        try {
+          const userLocal = JSON.parse(stored);
+          const userId = userLocal.id; // Sacamos el ID
 
-    // Escuchar cambios en localStorage
-    const onStorage = () => {
-      const s = localStorage.getItem("currentUser");
-      if (s) {
-        const u = JSON.parse(s);
-        setCoins(u.coins || 0);
+          if (userId) {
+            // 2. Consultar al Backend con ese ID
+            // AVISO: Asegúrate que el puerto sea el correcto (5002 o 4000)
+            const response = await fetch(`http://localhost:5002/user/${userId}`);
+            
+            if (response.ok) {
+              const data = await response.json();
+              
+              // 3. Actualizar las monedas con el dato REAL de la base de datos
+              if (data.user) {
+                setCoins(data.user.coins);
+                setUsername(data.user.username || "Usuario");
+                
+                // Opcional: Actualizamos el localStorage para que esté sincronizado
+                const usuarioActualizado = { ...userLocal, coins: data.user.coins };
+                localStorage.setItem("user", JSON.stringify(usuarioActualizado));
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Error cargando datos del usuario:", error);
+        }
       }
     };
 
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+    cargarDatosDelBackend();
+  }, []); // Se ejecuta solo al montar el componente
 
   const handleOutsideClick = (e: MouseEvent) => {
     if (perfilRef.current && !perfilRef.current.contains(e.target as Node)) {
@@ -74,7 +88,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
         {/* Zona derecha */}
         <div className="d-flex align-items-center ms-auto position-relative" ref={perfilRef}>
 
-          {/* 🔥 Botón de monedas (AHORA DINÁMICO) */}
+          {/* 🔥 Botón de monedas (Datos traídos del Backend) */}
           <button
             className="btn d-flex align-items-center me-3 btn-monedas"
             style={{ border: "none", background: "transparent", color: "white" }}
@@ -86,9 +100,13 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
 
           {/* Menú de usuario */}
           <UserMenu
-            username="Progra"
+            username={username} // Ahora usa el nombre real
             avatarUrl="https://i.imgur.com/KcfC1AP.png"
-            onLogout={() => alert("Sesión cerrada")}
+            onLogout={() => {
+                localStorage.removeItem("user"); // Borrar user al salir
+                localStorage.removeItem("token");
+                navigate("/login");
+            }}
           />
 
           {/* Mini ventana de perfil */}
