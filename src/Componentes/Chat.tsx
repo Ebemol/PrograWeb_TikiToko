@@ -12,11 +12,34 @@ interface LiveChatProps {
 }
 
 const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
+  // --- ESTADO ---
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoTexto, setNuevoTexto] = useState<string>("");
   const [mostrarNiveles, setMostrarNiveles] = useState<boolean>(false);
 
+  const [nivelUsuario, setNivelUsuario] = useState<number>(1);
+  const [xpUsuario, setXpUsuario] = useState<number>(0);
+  const [maxXP, setMaxXP] = useState<number>(50);
+
+  // --- EFECTOS ---
   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const resp = await fetch("http://localhost:4000/user/1");
+        const data = await resp.json();
+        
+        if (data.user) {
+            setNivelUsuario(data.user.nivel);
+            setXpUsuario(data.user.mensajes_enviados);
+            setMaxXP(data.user.nivel * 50 + 50);
+        }
+      } catch (error) {
+        console.error("Error cargando usuario:", error);
+      }
+    };
+
+    fetchUser();
+
     const mensajesIniciales: Mensaje[] = [
       { usuario: "@Hernán", texto: "Primero Aquí", nivel: 8 },
       { usuario: "@Eber", texto: "Aguante Radiohead", nivel: 12 },
@@ -29,25 +52,57 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
     setMensajes(mensajesIniciales);
   }, []);
 
-  const enviarMensaje = (e: React.FormEvent) => {
+  // --- HANDLERS ---
+  const enviarMensaje = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (nuevoTexto.trim() === "") return;
+    if (!nuevoTexto.trim()) return;
 
-    const nuevoMensaje: Mensaje = {
-      usuario: "@Eber",
-      texto: nuevoTexto.trim(),
-      nivel: 1,
-    };
+    try {
+      const userId = 1;
+      const token = "ine";
 
-    setMensajes((prev) => [...prev, nuevoMensaje]);
-    setNuevoTexto("");
+      // 1. Petición al Backend
+      const resp = await fetch(`http://localhost:4000/mensaje/${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ texto: nuevoTexto }),
+      });
 
-    if (onMensajeEnviado) onMensajeEnviado();
+      const data = await resp.json();
+
+      const nuevoNivel = data.nivel || nivelUsuario;
+      
+      setNivelUsuario(nuevoNivel);
+      setXpUsuario(data.mensajes_enviados || xpUsuario + 1);
+      setMaxXP(data.maxXP || (nuevoNivel * 50 + 50));
+
+      const nuevoMensaje: Mensaje = {
+        usuario: "@Eber",
+        texto: nuevoTexto.trim(),
+        nivel: nuevoNivel,
+      };
+
+      setMensajes((prev) => [...prev, nuevoMensaje]);
+      
+      // ▼▼▼ AQUÍ ESTÁ LA MAGIA ▼▼▼
+      setNuevoTexto(""); // Esto borra el texto del input
+      // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+      if (data.subio_nivel) setMostrarNiveles(true);
+
+      onMensajeEnviado?.();
+    } catch (err) {
+      console.error("Error enviando mensaje:", err);
+    }
   };
 
   return (
     <div style={{ position: "relative", height: "100%", width: "100%" }}>
-      {/* Fondo del chat */}
+      
+      {/* FONDO */}
       <iframe
         allow="fullscreen"
         frameBorder="0"
@@ -57,20 +112,24 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
           border: "none",
           borderRadius: "12px",
           backgroundColor: "#1e1e1e",
+          pointerEvents: "none",
         }}
-        title="Chat VDO.Ninja"
+        title="ChatVDO"
       ></iframe>
 
-      {/* Mensajes */}
+      {/* MENSAJES */}
       <div
+        id="chat-scroll"
         style={{
           position: "absolute",
           top: "10px",
           left: "10px",
+          right: "10px",
+          bottom: "80px",
+          overflowY: "auto",
+          paddingRight: "12px",
           zIndex: 10,
-          color: "#fff",
-          fontSize: "14px",
-          pointerEvents: "none",
+          pointerEvents: "auto",
         }}
       >
         {mensajes.map((msg, index) => (
@@ -82,6 +141,8 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
               padding: "6px 10px",
               borderRadius: "8px",
               boxShadow: "0 0 4px rgba(0,0,0,0.4)",
+              color: "#fff",
+              fontSize: "14px",
             }}
           >
             <strong style={{ color: "#ff4d4d" }}>
@@ -101,7 +162,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
         ))}
       </div>
 
-      {/* Input y botones */}
+      {/* INPUT Y BOTONES */}
       <form
         onSubmit={enviarMensaje}
         style={{
@@ -116,16 +177,16 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
       >
         <div style={{ display: "flex", gap: "8px" }}>
           <input
-            type="text"
             value={nuevoTexto}
             onChange={(e) => setNuevoTexto(e.target.value)}
             placeholder="Escribe tu mensaje..."
+            // He quitado el onClick que tenía error
             style={{
               padding: "8px",
               borderRadius: "6px",
-              border: "none",
               backgroundColor: "#222",
               color: "#fff",
+              border: "none",
               width: "250px",
             }}
           />
@@ -134,9 +195,9 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
             style={{
               padding: "8px 12px",
               borderRadius: "6px",
-              border: "none",
               backgroundColor: "#ff4d4d",
               color: "#fff",
+              border: "none",
               cursor: "pointer",
             }}
           >
@@ -144,26 +205,25 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
           </button>
         </div>
 
-        {/* Botón para mostrar Niveles */}
         <button
           type="button"
           onClick={() => setMostrarNiveles(!mostrarNiveles)}
           style={{
             padding: "6px 12px",
-            borderRadius: "6px",
-            border: "1px solid #555",
             backgroundColor: "#2a2a2a",
             color: "#aaa",
+            borderRadius: "6px",
+            border: "1px solid #555",
             cursor: "pointer",
             fontSize: "0.9rem",
-            marginTop: "4px",
+            alignSelf: "flex-start"
           }}
         >
           {mostrarNiveles ? "Ocultar niveles" : "Ver niveles"}
         </button>
       </form>
 
-      {/* Ventana de niveles flotante */}
+      {/* COMPONENTE NIVELES */}
       {mostrarNiveles && (
         <div
           style={{
@@ -175,8 +235,8 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
           }}
         >
           <Niveles
-            currentXP={429}
-            maxXP={1337}
+            currentXP={xpUsuario}
+            maxXP={maxXP}
             onClose={() => setMostrarNiveles(false)}
           />
         </div>

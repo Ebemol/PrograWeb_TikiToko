@@ -106,7 +106,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl }) => {
             <button
               className="list-group-item bg-transparent text-white border-0 d-flex align-items-center py-3"
               onClick={() => {
-                navigate("/UserSettingsModal");
+                navigate("/settings");
                 setOpen(false);
               }}
             >

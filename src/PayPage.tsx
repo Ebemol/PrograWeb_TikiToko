@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 // --- Componentes de UI Auxiliares ---
@@ -45,13 +45,26 @@ const PaymentStatus: React.FC<{ status: "success" | "error"; onReset: () => void
 // --- Componente Principal ---
 const PayPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const orderDetails = {
-    username: "Progra",
-    totalAmount: 15.45,
-    currency: "PEN",
-    coins: 350,
-  };
+  // 1. Recibir datos de Shop.tsx
+  const state = location.state as { coins: number; price: string } | null;
+  const coinsToBuy = state?.coins || 0;
+  const priceToPay = state?.price || "0.00";
+
+  // 2. Estado del Usuario (Para saber quién compra)
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Leemos "user" porque así lo guardamos en el Login corregido
+    const stored = localStorage.getItem("user"); 
+    if (stored) {
+        try { setCurrentUser(JSON.parse(stored)); } catch {}
+    } else {
+        // Fallback si no hay login
+        setCurrentUser({ id: 1, username: "Invitado" });
+    }
+  }, []);
 
   const [cardDetails, setCardDetails] = useState({
     number: "",
@@ -84,16 +97,53 @@ const PayPage: React.FC = () => {
     setCardDetails({ ...cardDetails, [name]: value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsLoading(true);
-    setTimeout(() => {
-      const isSuccess = Math.random() > 0.3;
-      setPaymentStatus(isSuccess ? "success" : "error");
-      setIsLoading(false);
-    }, 2000);
+
+    try {
+        // --- CONEXIÓN CON TU BACKEND (Puerto 5002) ---
+        const userId = currentUser?.id || 1; 
+
+        const response = await fetch("http://localhost:5002/buy-coins", {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": "Bearer ine" // Tu token fijo
+            },
+            body: JSON.stringify({
+                userId: userId,
+                coins: coinsToBuy
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            setPaymentStatus("success");
+            
+            // --- ACTUALIZAR LOCALSTORAGE PARA EL HEADER ---
+            // Leemos data.user.coins que devuelve tu backend
+            if (currentUser) {
+                const updatedUser = { ...currentUser, coins: data.user.coins };
+                localStorage.setItem("user", JSON.stringify(updatedUser));
+                
+                // Esto avisa al Header que se actualice
+                window.dispatchEvent(new Event("storage"));
+            }
+            
+        } else {
+            console.error("Error del servidor:", data);
+            setPaymentStatus("error");
+        }
+    } catch (error) {
+        console.error("Error de conexión:", error);
+        setPaymentStatus("error");
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -130,12 +180,12 @@ const PayPage: React.FC = () => {
                   <>
                     <h4 className="text-center mb-4 fw-bold text-white">Resumen del pedido</h4>
                     <div className="mb-4 p-3 rounded" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                      <SummaryRow label="Cuenta" value={orderDetails.username} />
-                      <SummaryRow label="Monedas a recibir" value={`🪙 ${orderDetails.coins}`} />
+                      <SummaryRow label="Cuenta" value={currentUser?.username || "Cargando..."} />
+                      <SummaryRow label="Monedas a recibir" value={`🪙 ${coinsToBuy}`} />
                       <hr style={{ borderColor: "rgba(255,255,255,0.1)" }} />
                       <SummaryRow
                         label="Total a pagar"
-                        value={`${orderDetails.currency} ${orderDetails.totalAmount.toFixed(2)}`}
+                        value={priceToPay}
                         valueColor="#28a745"
                       />
                     </div>
@@ -186,7 +236,7 @@ const PayPage: React.FC = () => {
                               <span className="visually-hidden">Procesando...</span>
                             </div>
                           ) : (
-                            `Confirmar pago (${orderDetails.currency} ${orderDetails.totalAmount.toFixed(2)})`
+                            `Confirmar pago (${priceToPay})`
                           )}
                         </button>
                       </div>

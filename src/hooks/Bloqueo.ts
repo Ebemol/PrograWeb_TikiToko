@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+0
 const useBloqueo = () => {
   const navigate = useNavigate();
 

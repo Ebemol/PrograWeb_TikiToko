@@ -9,7 +9,7 @@ import useBloqueo from "../src/hooks/Bloqueo";
 const coinPackages = [
   { coins: 30, price: '1.35 PEN' },
   { coins: 350, price: '15.45 PEN' },
-  { coins: 700, price: '30.89 PEN' },
+  { coins: 800, price: '30.89 PEN' },
   { coins: 1400, price: '61.79 PEN' },
   { coins: 3500, price: '154.45 PEN' },
   { coins: 7000, price: '308.89 PEN' },
@@ -28,6 +28,30 @@ const Shop = () => {
     setSelectedIndex(index);
     if (coinPackages[index].coins !== 'Personalizar') setCustomAmount('');
   }
+
+  // --- LÓGICA NUEVA: Preparar datos para el pago ---
+  const irAPagar = () => {
+    if (selectedIndex === null) return;
+
+    let cantidadMonedas = 0;
+    let precio = "";
+
+    if (coinPackages[selectedIndex].coins === 'Personalizar') {
+        cantidadMonedas = Number(customAmount);
+        precio = "Variable"; 
+    } else {
+        cantidadMonedas = Number(coinPackages[selectedIndex].coins);
+        precio = coinPackages[selectedIndex].price;
+    }
+
+    // Enviamos los datos a la página /pay
+    navigate('/pay', { 
+        state: { 
+            coins: cantidadMonedas, 
+            price: precio 
+        } 
+    });
+  };
 
   return (
     <div style={{ backgroundColor: '#121212', color: 'white', minHeight: '100vh' }}>
@@ -66,31 +90,25 @@ const Shop = () => {
           })}
         </div>
 
-        {/* Input personalizado */}
        {selectedIndex !== null && coinPackages[selectedIndex].coins === 'Personalizar' && (
-  <div className="text-end mt-3">
-    <input
-      type="number"
-      placeholder="Ingresa tu importe"
-      value={customAmount}
-      onChange={e => setCustomAmount(e.target.value)}
-      className="form-control text-white p-2"
-      style={{
-        backgroundColor: '#1c1c1c',
-        borderRadius: '1px',
-        width: '100%',      // más compacto
-        marginLeft: 'auto', // pega a la derecha
-        maxWidth: '300px', // evita que se haga muy grande en pantallas grandes
-      }}
-    />
-    <small className="d-block mt-1 text-white">
-      Puedes ingresar cualquier importe grande
-    </small>
-  </div>
-)}
+          <div className="text-end mt-3">
+            <input
+              type="number"
+              placeholder="Ingresa tu importe"
+              value={customAmount}
+              onChange={e => setCustomAmount(e.target.value)}
+              className="form-control text-white p-2"
+              style={{
+                backgroundColor: '#1c1c1c',
+                borderRadius: '1px',
+                width: '100%',     
+                marginLeft: 'auto', 
+                maxWidth: '300px', 
+              }}
+            />
+          </div>
+        )}
 
-
-        {/* Confirmación */}
         {selectedIndex !== null && (
           <div className="text-center mt-3">
             <p className="text-light fs-13">
@@ -102,7 +120,7 @@ const Shop = () => {
             </p>
             <button
               className="btn btn-danger fw-bold px-5 py-2 rounded-pill"
-              onClick={() => navigate('/pay')}
+              onClick={irAPagar}
               disabled={coinPackages[selectedIndex].coins === 'Personalizar' && !customAmount}
             >
               Comprar ahora

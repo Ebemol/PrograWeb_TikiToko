@@ -4,12 +4,19 @@ import { useState, type FormEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Create = () => {
+  // Estados del formulario
+  const [email, setEmail] = useState("");
+  const [name, setname] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setname] = useState("");
-  const [email, setEmail] = useState("");
+  const [dayborn, setDayborn] = useState(""); // Nuevo estado para fecha
+  const [genere, setGenere] = useState("");   // Nuevo estado para género
+
+  // Estados de control UI
   const [mensaje, setMensaje] = useState("");
   const [cuentaCreada, setCuentaCreada] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Para deshabilitar botón mientras carga
+  
   const navigate = useNavigate();
 
   function esCorreoValido(correo: string): boolean {
@@ -17,28 +24,74 @@ const Create = () => {
     return regex.test(correo);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>): void {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setMensaje(""); // Limpiar mensajes previos
 
-    if (!esCorreoValido(username)) {
+    // --- 1. Validaciones Frontend ---
+    if (!esCorreoValido(email)) {
       setMensaje("Ingresa un correo válido");
-      setCuentaCreada(false);
       return;
     }
 
     if (password.length < 6) {
       setMensaje("La contraseña debe tener al menos 6 caracteres");
-      setCuentaCreada(false);
       return;
     }
 
-    setMensaje(`¡Cuenta creada para ${username}! 🎉`);
-    setCuentaCreada(true);
+    if (!dayborn) {
+      setMensaje("Por favor ingresa tu fecha de nacimiento");
+      return;
+    }
+
+    if (!genere) {
+      setMensaje("Por favor selecciona un género");
+      return;
+    }
+
+    // --- 2. Enviar al Backend ---
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch("http://localhost:5002/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          username,
+          genere,
+          dayborn
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Éxito (Código 201)
+        setMensaje(`¡Cuenta creada para ${username}! 🎉`);
+        setCuentaCreada(true);
+      } else {
+        // Error del backend (ej: usuario ya existe)
+        setMensaje(data.error || "Error al crear la cuenta");
+        setCuentaCreada(false);
+      }
+
+    } catch (error) {
+      console.error("Error de conexión:", error);
+      setMensaje("No se pudo conectar con el servidor.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
+  // Redireccionar si la cuenta se creó con éxito
   useEffect(() => {
     if (cuentaCreada) {
-      const timer = setTimeout(() => navigate("/feed"), 1500);
+      const timer = setTimeout(() => navigate("/feed")); // Redirigir al login
       return () => clearTimeout(timer);
     }
   }, [cuentaCreada, navigate]);
@@ -56,12 +109,15 @@ const Create = () => {
 
       <form onSubmit={handleSubmit} style={styles.form}>
         <h2 style={styles.title}>Crear cuenta</h2>
-        <div>Ingrese sus datos para Continuar</div>
-        <input type="email"
+        <div style={{color: "#666", marginBottom: "10px"}}>Ingrese sus datos para Continuar</div>
+        
+        <input 
+          type="email"
           placeholder="Ingrese Su Correo"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           style={styles.input}
+          required
         />
 
         <input
@@ -70,14 +126,16 @@ const Create = () => {
           value={name}
           onChange={(e) => setname(e.target.value)}
           style={styles.input}
+          required
         />
 
         <input
           type="text"
-          placeholder="Ingrese Su nombre de ususario"
+          placeholder="Ingrese Su nombre de usuario"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           style={styles.input}
+          required
         />
 
         <input
@@ -86,27 +144,35 @@ const Create = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={styles.input}
+          required
         />
-        <div>Ingreses su fecha de nacimiento</div>
+        
+        <div style={{textAlign: "left", fontSize: "14px", color: "#555"}}>Ingrese su fecha de nacimiento</div>
         <input
           type="date"
           className="form-control"
           id="fechaNacimiento"
           name="fechaNacimiento"
           style={styles.input}
-          required></input>
+          value={dayborn}
+          onChange={(e) => setDayborn(e.target.value)}
+          required
+        ></input>
 
         <div className="container">
           <div className="d-flex gap-3 align-items-center justify-content-center my-3">
+            
             <div className="form-check form-check-inline">
               <input
                 className="form-check-input"
                 type="radio"
-                name="opcion"
+                name="genereOption"
                 id="opcion1"
                 value="hombre"
+                onChange={(e) => setGenere(e.target.value)}
+                checked={genere === "hombre"}
               />
-              <label className="form-check-label fw-semibold text-primary" htmlFor="opcion1">
+              <label className="fw-semibold form-check-label" htmlFor="opcion1">
                 Hombre
               </label>
             </div>
@@ -115,11 +181,13 @@ const Create = () => {
               <input
                 className="form-check-input"
                 type="radio"
-                name="opcion"
+                name="genereOption"
                 id="opcion2"
                 value="mujer"
+                onChange={(e) => setGenere(e.target.value)}
+                checked={genere === "mujer"}
               />
-              <label className="form-check-label fw-semibold text-danger" htmlFor="opcion2">
+              <label className="fw-semibold form-check-label" htmlFor="opcion2">
                 Mujer
               </label>
             </div>
@@ -128,27 +196,22 @@ const Create = () => {
               <input
                 className="form-check-input"
                 type="radio"
-                name="opcion"
+                name="genereOption"
                 id="opcion3"
-                value="nah"
+                value="transformer"
+                onChange={(e) => setGenere(e.target.value)}
+                checked={genere === "transformer"}
               />
-              <label className="form-check-label fw-semibold text-danger" htmlFor="opcion3">
-                Prefiero no detallarlo
+              <label className="fw-semibold form-check-label" htmlFor="opcion3">
+              Transformer              
               </label>
             </div>
 
-
-
-
           </div>
-
-
-
         </div>
 
-
-        <button type="submit" style={styles.button}>
-          Registrarse
+        <button type="submit" style={isLoading ? {...styles.button, backgroundColor: "#ccc"} : styles.button} disabled={isLoading}>
+          {isLoading ? "Registrando..." : "Registrarse"}
         </button>
 
         {mensaje && (
@@ -172,9 +235,9 @@ const styles: { [key: string]: React.CSSProperties } = {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    height: "100vh",
+    minHeight: "100vh", // Cambiado a minHeight para pantallas pequeñas
     backgroundColor: "#fff",
-    overflow: "hidden",
+    padding: "20px 0",
   },
   header: {
     position: "absolute",
@@ -194,7 +257,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     width: "100%",
   },
   title: {
-    marginBottom: "20px",
+    marginBottom: "10px",
     fontSize: "30px",
     fontWeight: "bold",
     color: "#111",
@@ -220,7 +283,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   mensaje: {
     fontSize: "14px",
     marginTop: "10px",
-    fontStyle: "italic",
+    fontWeight: "bold",
     textAlign: "center",
   },
 };

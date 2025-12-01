@@ -69,25 +69,37 @@ const DiscoverLivePage: React.FC = () => {
     }
   };
 
-  const sumarPunto = () => {
-    let nuevoXP = puntos + 1;
+  const registrarMensaje = async () => {
+  try {
+    const userId = 1;
 
-    // Verificar subida de nivel
-    if (nuevoXP >= maxXP) {
-      // Subir de nivel
-      const nivelesSubidos = Math.floor(nuevoXP / maxXP);
-      setNivel(nivel + nivelesSubidos);
-      
-      // Resetear XP con el excedente
-      nuevoXP = nuevoXP % maxXP;
-      
-      // Mostrar notificación
+    const response = await fetch(`http://localhost:4000/mensaje/${userId}`, {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer ine",
+        "Content-Type": "application/json",
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Error backend:", data);
+      return;
+    }
+
+    setNivel(data.nivel);
+    setPuntos(data.mensajes_enviados);
+
+    if (data.subio_nivel) {
       setMostrarNotificacion(true);
       setTimeout(() => setMostrarNotificacion(false), 3000);
     }
+  } catch (e) {
+    console.error("Error al registrar mensaje", e);
+  }
+};
 
-    setPuntos(nuevoXP);
-  };
 
   const activarNotificacionManual = () => {
     setMostrarNotificacion(true);
@@ -270,7 +282,7 @@ const DiscoverLivePage: React.FC = () => {
               </div>
 
               <div style={{ flexGrow: 1 }}>
-                <LiveChat onMensajeEnviado={sumarPunto} />
+                <LiveChat onMensajeEnviado={registrarMensaje} />
               </div>
 
               <div style={{ padding: "10px", borderTop: "1px solid #333" }}>

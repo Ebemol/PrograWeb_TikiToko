@@ -5,6 +5,9 @@ import MiniVentanaPerfil from "./Niveles";
 import TikTokCoinIcon from "./Tiktokcoin";
 import axios from "axios";
 
+// Imagen por defecto (debe existir en la carpeta public)
+const DEFAULT_AVATAR = "/user-default.png"; 
+
 interface HeaderProps {
   showVentanaPerfil: boolean;
   setShowVentanaPerfil: (value: boolean) => void;
@@ -14,10 +17,10 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
   const navigate = useNavigate();
   const perfilRef = useRef<HTMLDivElement>(null);
 
-  /* ============================
-        🔥 NUEVO: Coins dinámicas
-     ============================ */
+  // --- ESTADOS ---
   const [coins, setCoins] = useState<number>(0);
+  const [username, setUsername] = useState<string>("Usuario");
+  const [avatar, setAvatar] = useState<string>(DEFAULT_AVATAR); // Estado para la foto
 
   useEffect(() => {
   // 1. Cargar coins desde localStorage
@@ -53,6 +56,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
 
 }, []);
 
+  // Cerrar menús al hacer click fuera
   const handleOutsideClick = (e: MouseEvent) => {
     if (perfilRef.current && !perfilRef.current.contains(e.target as Node)) {
       setShowVentanaPerfil(false);
@@ -86,7 +90,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
         {/* Zona derecha */}
         <div className="d-flex align-items-center ms-auto position-relative" ref={perfilRef}>
 
-          {/* 🔥 Botón de monedas (AHORA DINÁMICO) */}
+          {/* 🔥 Botón de monedas (DINÁMICO) */}
           <button
             className="btn d-flex align-items-center me-3 btn-monedas"
             style={{ border: "none", background: "transparent", color: "white" }}
@@ -96,17 +100,21 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
             <span className="fw-bold texto-monedas">{coins}</span>
           </button>
 
-          {/* Menú de usuario */}
+          {/* Menú de usuario (CON FOTO REAL) */}
           <UserMenu
-            username="Progra"
-            avatarUrl="https://i.imgur.com/KcfC1AP.png"
-            onLogout={() => alert("Sesión cerrada")}
+            username={username}
+            avatarUrl={avatar} // <--- Aquí pasamos la foto de la BD
+            onLogout={() => {
+                localStorage.removeItem("user");
+                localStorage.removeItem("token");
+                navigate("/login");
+            }}
           />
 
           {/* Mini ventana de perfil */}
           {showVentanaPerfil && (
             <MiniVentanaPerfil
-              currentXP={429}
+              currentXP={429} // Esto puedes conectarlo a futuro si agregas XP al User
               maxXP={1337}
               onClose={() => setShowVentanaPerfil(false)}
             />
@@ -122,10 +130,6 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
           }
 
           .btn-monedas:hover .texto-monedas {
-            color: #EE1D52;
-          }
-
-          .btn-perfil:hover .texto-usuario {
             color: #EE1D52;
           }
         `}
