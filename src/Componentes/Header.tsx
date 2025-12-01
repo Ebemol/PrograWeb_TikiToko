@@ -4,6 +4,9 @@ import UserMenu from "./UserMenu";
 import MiniVentanaPerfil from "./Niveles";
 import TikTokCoinIcon from "./Tiktokcoin";
 
+// Imagen por defecto (debe existir en la carpeta public)
+const DEFAULT_AVATAR = "/user-default.png"; 
+
 interface HeaderProps {
   showVentanaPerfil: boolean;
   setShowVentanaPerfil: (value: boolean) => void;
@@ -13,9 +16,10 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
   const navigate = useNavigate();
   const perfilRef = useRef<HTMLDivElement>(null);
 
+  // --- ESTADOS ---
   const [coins, setCoins] = useState<number>(0);
-  // Opcional: Estados para nombre y avatar si quieres que también vengan del back
   const [username, setUsername] = useState<string>("Usuario");
+  const [avatar, setAvatar] = useState<string>(DEFAULT_AVATAR); // Estado para la foto
 
   useEffect(() => {
     const cargarDatosDelBackend = async () => {
@@ -25,36 +29,47 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
       if (stored) {
         try {
           const userLocal = JSON.parse(stored);
-          const userId = userLocal.id; // Sacamos el ID
+          const userId = userLocal.id;
 
           if (userId) {
-            // 2. Consultar al Backend con ese ID
-            // AVISO: Asegúrate que el puerto sea el correcto (5002 o 4000)
+            // 2. Consultar al Backend (Puerto 5002)
             const response = await fetch(`http://localhost:5002/user/${userId}`);
             
             if (response.ok) {
               const data = await response.json();
               
-              // 3. Actualizar las monedas con el dato REAL de la base de datos
               if (data.user) {
-                setCoins(data.user.coins);
+                // 3. Actualizar la interfaz con los datos REALES
+                setCoins(data.user.coins || 0);
                 setUsername(data.user.username || "Usuario");
                 
-                // Opcional: Actualizamos el localStorage para que esté sincronizado
-                const usuarioActualizado = { ...userLocal, coins: data.user.coins };
+                // Si tiene avatar en BD lo usa, si no, usa el default
+                setAvatar(data.user.avatar || DEFAULT_AVATAR);
+
+                // Opcional: Mantener localStorage sincronizado
+                const usuarioActualizado = { ...userLocal, ...data.user };
+                // Quitamos datos pesados del localStorage para no saturarlo (opcional)
+                delete usuarioActualizado.avatar; 
                 localStorage.setItem("user", JSON.stringify(usuarioActualizado));
               }
             }
           }
         } catch (error) {
-          console.error("Error cargando datos del usuario:", error);
+          console.error("Error conectando con backend:", error);
         }
       }
     };
 
     cargarDatosDelBackend();
-  }, []); // Se ejecuta solo al montar el componente
+    
+    // Escuchar cambios en localStorage (por si otra pestaña actualiza algo)
+    const handleStorageChange = () => cargarDatosDelBackend();
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
 
+  }, []);
+
+  // Cerrar menús al hacer click fuera
   const handleOutsideClick = (e: MouseEvent) => {
     if (perfilRef.current && !perfilRef.current.contains(e.target as Node)) {
       setShowVentanaPerfil(false);
@@ -88,7 +103,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
         {/* Zona derecha */}
         <div className="d-flex align-items-center ms-auto position-relative" ref={perfilRef}>
 
-          {/* 🔥 Botón de monedas (Datos traídos del Backend) */}
+          {/* 🔥 Botón de monedas (DINÁMICO) */}
           <button
             className="btn d-flex align-items-center me-3 btn-monedas"
             style={{ border: "none", background: "transparent", color: "white" }}
@@ -98,12 +113,12 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
             <span className="fw-bold texto-monedas">{coins}</span>
           </button>
 
-          {/* Menú de usuario */}
+          {/* Menú de usuario (CON FOTO REAL) */}
           <UserMenu
-            username={username} // Ahora usa el nombre real
-            avatarUrl="https://i.imgur.com/KcfC1AP.png"
+            username={username}
+            avatarUrl={avatar} // <--- Aquí pasamos la foto de la BD
             onLogout={() => {
-                localStorage.removeItem("user"); // Borrar user al salir
+                localStorage.removeItem("user");
                 localStorage.removeItem("token");
                 navigate("/login");
             }}
@@ -112,7 +127,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
           {/* Mini ventana de perfil */}
           {showVentanaPerfil && (
             <MiniVentanaPerfil
-              currentXP={429}
+              currentXP={429} // Esto puedes conectarlo a futuro si agregas XP al User
               maxXP={1337}
               onClose={() => setShowVentanaPerfil(false)}
             />
@@ -128,10 +143,6 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
           }
 
           .btn-monedas:hover .texto-monedas {
-            color: #EE1D52;
-          }
-
-          .btn-perfil:hover .texto-usuario {
             color: #EE1D52;
           }
         `}
