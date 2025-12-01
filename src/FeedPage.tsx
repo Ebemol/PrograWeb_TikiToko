@@ -4,9 +4,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import SlideBar from "./Componentes/SlideBar";
 import Header from "./Componentes/Header";
+import useBloqueo from "../src/hooks/Bloqueo";
 
 const Feed = () => {
   const navigate = useNavigate();
+  useBloqueo();
   const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
   const [volume, setVolume] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);

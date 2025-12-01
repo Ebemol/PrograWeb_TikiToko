@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import UserMenu from "./UserMenu";
 import MiniVentanaPerfil from "./Niveles";
 import TikTokCoinIcon from "./Tiktokcoin";
+import axios from "axios";
 
 interface HeaderProps {
   showVentanaPerfil: boolean;
@@ -19,27 +20,38 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
   const [coins, setCoins] = useState<number>(0);
 
   useEffect(() => {
-    // Cargar coins de localStorage al iniciar
-    const stored = localStorage.getItem("currentUser");
-    if (stored) {
-      try {
-        const user = JSON.parse(stored);
-        setCoins(user.coins || 0);
-      } catch {}
-    }
+  // 1. Cargar coins desde localStorage
+  const stored = localStorage.getItem("currentUser");
+  if (stored) {
+    try {
+      const user = JSON.parse(stored);
+      setCoins(user.coins || 0);
+    } catch {}
+  }
 
-    // Escuchar cambios en localStorage
-    const onStorage = () => {
-      const s = localStorage.getItem("currentUser");
-      if (s) {
-        const u = JSON.parse(s);
-        setCoins(u.coins || 0);
+  // 2. Obtener coins reales desde el backend
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+
+  if (token && userId) {
+    axios.get(`http://localhost:5002/user/coins/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(res => {
+      setCoins(res.data.coins);
+
+      // actualizar localStorage
+      const storedUser = localStorage.getItem("currentUser");
+      if (storedUser) {
+        const u = JSON.parse(storedUser);
+        u.coins = res.data.coins;
+        localStorage.setItem("currentUser", JSON.stringify(u));
       }
-    };
+    })
+    .catch(() => {});
+  }
 
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+}, []);
 
   const handleOutsideClick = (e: MouseEvent) => {
     if (perfilRef.current && !perfilRef.current.contains(e.target as Node)) {

@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 import LiveTimer from "./Componentes/LiveTimer";
 import Chat from "./Componentes/Chat";
 import Header from "./Componentes/Header";
+import useBloqueo from "../src/hooks/Bloqueo";
 
 function StreamPage() {
   const navigate = useNavigate();
+  useBloqueo();
 
   const [regaloActual, setRegaloActual] = useState("1 Rosa");
   const [espectadorActual, setEspectadorActual] = useState("@Hernán");

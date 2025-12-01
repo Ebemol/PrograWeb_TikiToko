@@ -6,6 +6,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 interface UserMenuProps {
   username: string;
   avatarUrl: string;
+  onLogout: () => void;
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl }) => {
@@ -24,10 +25,28 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl }) => {
   }, []);
 
   // Logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
+  const token = localStorage.getItem("token");
 
-    navigate('/');
-  };
+  if (token) {
+    try {
+      await fetch("http://localhost:5002/logout", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+    } catch (err) {
+      console.error("Error en logout:", err);
+    }
+  }
+
+  localStorage.clear();
+  sessionStorage.clear();
+  
+  navigate("/");
+};
+
 
   return (
     <div className="position-relative" ref={menuRef}>

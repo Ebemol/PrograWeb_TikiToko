@@ -5,9 +5,11 @@ import Niveles from "./Componentes/Niveles";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Header from "./Componentes/Header";
+import useBloqueo from "../src/hooks/Bloqueo";
 
 const DiscoverLivePage: React.FC = () => {
   const navigate = useNavigate();
+  useBloqueo();
   const [monedas, setMonedas] = useState(120);
   const [puntos, setPuntos] = useState(850);
   const [nivel, setNivel] = useState(12);

@@ -5,10 +5,10 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "./Componentes/SlideBar";
 import RegistroTransmision from "./Componentes/RegistroTransmision";
 import Header from "./Componentes/Header";
-
+import useBloqueo from "../src/hooks/Bloqueo";
 const HerramientasPage = () => {
   const navigate = useNavigate();
-
+  useBloqueo();
   const [horasTotales] = useState(12);
   const [nivel] = useState(3);
   const [metaHoras] = useState(50);

@@ -3,6 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import Header from './Componentes/Header'; 
 import TikTokCoinIcon from './Componentes/Tiktokcoin';
+import useBloqueo from "../src/hooks/Bloqueo";
+
 
 const coinPackages = [
   { coins: 30, price: '1.35 PEN' },
@@ -17,6 +19,7 @@ const coinPackages = [
 
 const Shop = () => {
   const navigate = useNavigate();
+  useBloqueo();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState(''); 
   const [showVentanaPerfil, setShowVentanaPerfil] = useState(false); 
