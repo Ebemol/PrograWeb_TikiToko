@@ -117,14 +117,14 @@ const Sidebar = () => {
 
             <button
               className="btn btn-ebemol w-100"
-              onClick={() => navigate("/stream")}
+              onClick={() => navigate("/golive")}
             >
               <i className="bi bi-broadcast"></i> <span>Emitir Live</span>
             </button>
 
             <button
               className="btn btn-ebemol w-100"
-              onClick={() => navigate("/herramientas")}
+              onClick={() => navigate("/tools")}
             >
               <i className="bi bi-tools"></i> <span>Herramientas</span>
             </button>

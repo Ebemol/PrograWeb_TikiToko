@@ -142,7 +142,7 @@ const Login = () => {
               fontSize: "14px",
               fontWeight: "normal"
             }}
-            onClick={() => navigate("/registro")}
+            onClick={() => navigate("/register")}
           >
             Regístrarse
           </span>
