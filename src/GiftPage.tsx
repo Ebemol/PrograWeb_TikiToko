@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "./Componentes/Header";
+import useBloqueo from "../src/hooks/Bloqueo"; // Tu hook de seguridad
+import AuthRequired from "./Componentes/AuthRequired"; // <--- Importamos el bloqueo
 
 interface Gift {
   id: number;
@@ -12,9 +14,25 @@ interface Gift {
 
 const GiftPage: React.FC = () => {
   const navigate = useNavigate();
+  useBloqueo(); // Hook extra
+
+  // --- LÓGICA DE PROTECCIÓN (ANTI-BYPASS) ---
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsAuthorized(true);
+    } else {
+      setIsAuthorized(false);
+    }
+    setLoadingAuth(false);
+  }, []);
+  // ------------------------------------------
+
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [form, setForm] = useState<Gift>({
-
     id: 0,
     nombre: "",
     costo: 0,
@@ -62,26 +80,37 @@ const GiftPage: React.FC = () => {
     setGifts(prev => prev.filter(g => g.id !== id));
   };
 
+  // --- 1. ESTADO DE CARGA (Pantalla negra) ---
+  if (loadingAuth) {
+    return <div style={{ backgroundColor: "#121212", minHeight: "100vh" }}></div>;
+  }
+
+  // --- 2. ESTADO BLOQUEADO (Si no hay login) ---
+  if (!isAuthorized) {
+    return (
+      <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white", display: "flex", flexDirection: "column" }}>
+        <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
+            <div className="container-fluid">
+                <button className="navbar-brand d-flex align-items-center" onClick={() => navigate("/feed")} style={{ border: "none", background: "transparent" }}>
+                    <img src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg" alt="TikTok Banner" width="90" height="40" className="d-inline-block align-text-top" />
+                </button>
+            </div>
+        </nav>
+        <div style={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <AuthRequired />
+        </div>
+      </div>
+    );
+  }
+
+  // --- 3. DISEÑO ORIGINAL (Si está logueado) ---
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white" }}>
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
-        <div className="container-fluid">
-          <button
-            className="navbar-brand d-flex align-items-center"
-            onClick={() => navigate("/feed")}
-            style={{ border: "none", background: "transparent" }}
-          >
-            <img
-              src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg"
-              alt="TikTok Banner"
-              width="90"
-              height="40"
-              className="d-inline-block align-text-top"
-            />
-          </button>
-        </div>
-      </nav>
+      {/* Header Original */}
+      <Header
+        showVentanaPerfil={showVentanaPerfil}
+        setShowVentanaPerfil={setShowVentanaPerfil}
+      />
 
       {/* Contenido */}
       <div style={{ padding: "30px" }}>

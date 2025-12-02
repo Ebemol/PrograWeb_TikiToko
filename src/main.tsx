@@ -22,16 +22,16 @@ createRoot(document.getElementById("root")!).render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/registro" element={<Register />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/stream" element={<StreamPage />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/terms" element={<TermsConditions />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/us" element={<Us />} />
         <Route path="/pay" element={<PayPage />} />
-        <Route path="/regalos" element={<GiftPage />} />
+        <Route path="/gifts" element={<GiftPage />} />
         <Route path="/viewer" element={<DiscoverLivePage />} />
-        <Route path="/herramientas" element={<HerramientasPage />} />
+        <Route path="/tools" element={<HerramientasPage />} />
         <Route path="/settings" element={<Configuracion />} />
         <Route path="/create" element={<Create />} />
       </Routes>

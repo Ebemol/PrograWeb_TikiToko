@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from "react-router-dom";
 import Header from './Componentes/Header'; 
 import TikTokCoinIcon from './Componentes/Tiktokcoin';
-import useBloqueo from "../src/hooks/Bloqueo";
-
+import AuthRequired from "./Componentes/AuthRequired"; // <--- Importamos el bloqueo
 
 const coinPackages = [
   { coins: 30, price: '1.35 PEN' },
@@ -19,7 +18,22 @@ const coinPackages = [
 
 const Shop = () => {
   const navigate = useNavigate();
-  useBloqueo();
+
+  // --- LÓGICA DE PROTECCIÓN (ANTI-BYPASS) ---
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsAuthorized(true);
+    } else {
+      setIsAuthorized(false);
+    }
+    setLoadingAuth(false);
+  }, []);
+  // ------------------------------------------
+
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState(''); 
   const [showVentanaPerfil, setShowVentanaPerfil] = useState(false); 
@@ -29,7 +43,6 @@ const Shop = () => {
     if (coinPackages[index].coins !== 'Personalizar') setCustomAmount('');
   }
 
-  // --- LÓGICA NUEVA: Preparar datos para el pago ---
   const irAPagar = () => {
     if (selectedIndex === null) return;
 
@@ -44,7 +57,6 @@ const Shop = () => {
         precio = coinPackages[selectedIndex].price;
     }
 
-    // Enviamos los datos a la página /pay
     navigate('/pay', { 
         state: { 
             coins: cantidadMonedas, 
@@ -53,6 +65,24 @@ const Shop = () => {
     });
   };
 
+  // --- 1. ESTADO DE CARGA (Pantalla negra) ---
+  if (loadingAuth) {
+    return <div style={{ backgroundColor: '#121212', minHeight: '100vh' }}></div>;
+  }
+
+  // --- 2. ESTADO BLOQUEADO (Si no hay login) ---
+  if (!isAuthorized) {
+    return (
+      <div style={{ backgroundColor: '#121212', minHeight: '100vh', color: 'white', display: 'flex', flexDirection: 'column' }}>
+        <Header showVentanaPerfil={false} setShowVentanaPerfil={() => {}} />
+        <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <AuthRequired />
+        </div>
+      </div>
+    );
+  }
+
+  // --- 3. DISEÑO ORIGINAL (Si está logueado) ---
   return (
     <div style={{ backgroundColor: '#121212', color: 'white', minHeight: '100vh' }}>
       <Header showVentanaPerfil={showVentanaPerfil} setShowVentanaPerfil={setShowVentanaPerfil} />

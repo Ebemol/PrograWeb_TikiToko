@@ -1,14 +1,31 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import SlideBar from "./Componentes/SlideBar";
 import Header from "./Componentes/Header";
 import useBloqueo from "../src/hooks/Bloqueo";
+import AuthRequired from "./Componentes/AuthRequired"; // <--- Importamos el bloqueo
 
 const Feed = () => {
   const navigate = useNavigate();
   useBloqueo();
+  
+  // --- LÓGICA ANTI-BYPASS ---
+  const [isAuth, setIsAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsAuth(true);
+    } else {
+      setIsAuth(false);
+    }
+    setLoading(false);
+  }, []);
+  // --------------------------
+
   const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
   const [volume, setVolume] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -22,6 +39,24 @@ const Feed = () => {
     }
   };
 
+  // 1. MIENTRAS CARGA (PANTALLA NEGRA PARA NO MOSTRAR NADA)
+  if (loading) {
+    return <div className="bg-black min-vh-100"></div>;
+  }
+
+  // 2. SI NO ESTÁ LOGUEADO (BLOQUEO)
+  if (!isAuth) {
+    return (
+      <div className="bg-black min-vh-100 d-flex flex-column">
+        <Header showVentanaPerfil={false} setShowVentanaPerfil={() => {}} />
+        <div className="flex-grow-1 d-flex align-items-center justify-content-center">
+          <AuthRequired />
+        </div>
+      </div>
+    );
+  }
+
+  // 3. SI ESTÁ LOGUEADO (TU DISEÑO ORIGINAL)
   return (
     <div className="bg-black min-vh-100 position-relative">
       <div className="d-flex">

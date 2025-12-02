@@ -2,13 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import AuthRequired from "./Componentes/AuthRequired"; // <--- Importamos el bloqueo
 
 // --- Constantes ---
 const RED = "#EE1D52";
 const WHITE_BORDER = "rgba(255, 255, 255, 0.15)";
-
-// 🔥 AQUÍ CAMBIAS LA FOTO POR DEFECTO
-// Asegúrate de que este archivo exista en tu carpeta 'public'
 const DEFAULT_AVATAR = "/user-default.png"; 
 
 // Componente visual (Filas de configuración)
@@ -30,6 +28,22 @@ const SettingsRow: React.FC<{
 
 const Configuracion: React.FC = () => {
   const navigate = useNavigate();
+
+  // --- LÓGICA DE PROTECCIÓN (ANTI-BYPASS) ---
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsAuthorized(true);
+    } else {
+      setIsAuthorized(false);
+    }
+    setLoadingAuth(false);
+  }, []);
+  // ------------------------------------------
+
   const [userId, setUserId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,16 +52,14 @@ const Configuracion: React.FC = () => {
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
-  const [theme, setTheme] = useState("dark"); 
+  const [theme] = useState("dark"); // Fijo en Dark
 
-  // Notificaciones
   const [notifications, setNotifications] = useState({
     likes: true,
     comments: true,
     newFollowers: true,
   });
 
-  // Privacidad
   const [privacy, setPrivacy] = useState({
     privateAccount: false,
     showActivity: true,
@@ -71,8 +83,6 @@ const Configuracion: React.FC = () => {
           setUsername(u.username || "");
           setEmail(u.email || "");
           setBio(u.bio || "");
-          
-          // Si tiene foto la usamos, si no, se queda en null (y usará el default)
           setProfilePicture(u.avatar || null);
           
           if (u.settings) {
@@ -84,8 +94,10 @@ const Configuracion: React.FC = () => {
         console.error("Error cargando:", error);
       }
     };
-    cargarDatos();
-  }, []);
+    if (isAuthorized) {
+        cargarDatos();
+    }
+  }, [isAuthorized]);
 
   // --- 2. GUARDAR CAMBIOS ---
   const handleSave = async () => {
@@ -146,7 +158,7 @@ const Configuracion: React.FC = () => {
     }
   };
 
-  // Helpers para los switches
+  // Helpers
   const toggleNotif = (key: keyof typeof notifications) => {
     setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -175,6 +187,34 @@ const Configuracion: React.FC = () => {
     borderBottom: `1px solid ${WHITE_BORDER}`,
   };
 
+  // --- 1. ESTADO DE CARGA ---
+  if (loadingAuth) {
+    return <div className="min-vh-100" style={{ background: "#000" }}></div>;
+  }
+
+  // --- 2. ESTADO BLOQUEADO ---
+  if (!isAuthorized) {
+    return (
+      <div className="min-vh-100 d-flex flex-column" style={{ background: "#000", color: "#fff" }}>
+        {/* Header simple para volver */}
+        <header
+            className="d-flex align-items-center px-4 py-3 sticky-top"
+            style={{ borderBottom: `1px solid ${WHITE_BORDER}`, background: "rgba(0,0,0,0.8)" }}
+        >
+            <button className="btn btn-link text-white p-0" onClick={() => navigate(-1)}>
+                <i className="bi bi-arrow-left fs-4" />
+            </button>
+            <h1 className="mb-0 fw-bold ms-3" style={{ fontSize: 18 }}>Configuración</h1>
+        </header>
+        
+        <div className="flex-grow-1 d-flex align-items-center justify-content-center">
+          <AuthRequired />
+        </div>
+      </div>
+    );
+  }
+
+  // --- 3. CONTENIDO REAL ---
   return (
     <div
       className="min-vh-100"
@@ -184,7 +224,6 @@ const Configuracion: React.FC = () => {
         fontFamily: "'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
       }}
     >
-      {/* ----------------- HEADER ORIGINAL ----------------- */}
       <header
         className="d-flex align-items-center justify-content-between px-4 py-3 sticky-top"
         style={{
@@ -226,22 +265,18 @@ const Configuracion: React.FC = () => {
         </div>
       </header>
 
-      {/* ----------------- CONTENIDO PRINCIPAL ----------------- */}
       <main className="container-fluid d-flex justify-content-center py-5 px-3">
         <div className="w-100" style={{ maxWidth: 800 }}>
           
-          {/* Sección Perfil */}
+          {/* Perfil */}
           <div id="perfil-section" className="mb-5 p-4 rounded-4" style={{ background: "#0b0b0b", border: `1px solid ${WHITE_BORDER}` }}>
             <h2 style={sectionTitleStyle}>Perfil</h2>
             <div className="d-flex align-items-center mb-4">
-              {/* ▼▼▼ AQUÍ ESTÁ EL CAMBIO DE LA FOTO ▼▼▼ */}
               <img 
                 src={profilePicture || DEFAULT_AVATAR} 
                 alt="Foto de perfil" 
                 style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }} 
               />
-              {/* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */}
-
               <div className="ms-4">
                 <label className="btn btn-sm" style={{ color: '#fff', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer' }}>
                   Cambiar foto
@@ -264,7 +299,7 @@ const Configuracion: React.FC = () => {
             </div>
           </div>
 
-          {/* Sección Notificaciones */}
+          {/* Notificaciones */}
           <div id="notificaciones-section" className="mb-5 p-4 rounded-4" style={{ background: "#0b0b0b", border: `1px solid ${WHITE_BORDER}` }}>
             <h2 style={sectionTitleStyle}>Notificaciones</h2>
             <SettingsRow title="Me gusta" description="Recibir notificaciones cuando a alguien le guste tu contenido.">
@@ -284,7 +319,7 @@ const Configuracion: React.FC = () => {
             </SettingsRow>
           </div>
 
-          {/* Sección Privacidad */}
+          {/* Privacidad */}
           <div id="privacidad-section" className="mb-5 p-4 rounded-4" style={{ background: "#0b0b0b", border: `1px solid ${WHITE_BORDER}` }}>
             <h2 style={sectionTitleStyle}>Privacidad</h2>
             <SettingsRow title="Cuenta privada" description="Solo la gente que apruebes podrá ver tus fotos y videos.">

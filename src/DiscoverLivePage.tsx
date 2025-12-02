@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LiveChat from "./Componentes/Chat";
 import Niveles from "./Componentes/Niveles";
@@ -6,10 +6,27 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Header from "./Componentes/Header";
 import useBloqueo from "../src/hooks/Bloqueo";
+import AuthRequired from "./Componentes/AuthRequired"; // <--- Importamos el bloqueo
 
 const DiscoverLivePage: React.FC = () => {
   const navigate = useNavigate();
   useBloqueo();
+
+  // --- LÓGICA DE PROTECCIÓN (ANTI-BYPASS) ---
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsAuthorized(true);
+    } else {
+      setIsAuthorized(false);
+    }
+    setLoadingAuth(false);
+  }, []);
+  // ------------------------------------------
+
   const [monedas, setMonedas] = useState(120);
   const [puntos, setPuntos] = useState(850);
   const [nivel, setNivel] = useState(12);
@@ -20,8 +37,7 @@ const DiscoverLivePage: React.FC = () => {
   const [hasLiked, setHasLiked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [mensajeError, setMensajeError] = useState("");
-    const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
-  
+  const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
 
   const maxXP = 1000;
 
@@ -35,75 +51,54 @@ const DiscoverLivePage: React.FC = () => {
 
   const enviarRegalo = (costo: number, puntosGanados: number, nombre: string) => {
     if (monedas >= costo) {
-      // Descontar monedas
       setMonedas(monedas - costo);
-      
-      // Sumar puntos
       let nuevoXP = puntos + puntosGanados;
 
-      // Verificar subida de nivel (cuando XP >= maxXP)
       if (nuevoXP >= maxXP) {
-        // Subir de nivel
         const nivelesSubidos = Math.floor(nuevoXP / maxXP);
         setNivel(nivel + nivelesSubidos);
-        
-        // Resetear XP con el excedente
         nuevoXP = nuevoXP % maxXP;
-        
-        // Mostrar notificación de subida
         setMostrarNotificacion(true);
         setTimeout(() => setMostrarNotificacion(false), 3000);
       }
 
       setPuntos(nuevoXP);
-
-      // Limpiar error si había
       setMensajeError("");
-      
-      // Mostrar mensaje de éxito
       console.log(`✅ Regalo "${nombre}" enviado! -${costo} monedas, +${puntosGanados} puntos`);
     } else {
-      // No tiene suficientes monedas
       setMensajeError(`No tienes suficientes monedas. Necesitas ${costo} monedas.`);
       setTimeout(() => setMensajeError(""), 3000);
     }
   };
 
   const registrarMensaje = async () => {
-  try {
-    const userId = 1;
+    try {
+      const userId = 1;
+      const response = await fetch(`http://localhost:4000/mensaje/${userId}`, {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer ine",
+          "Content-Type": "application/json",
+        }
+      });
 
-    const response = await fetch(`http://localhost:4000/mensaje/${userId}`, {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer ine",
-        "Content-Type": "application/json",
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Error backend:", data);
+        return;
       }
-    });
 
-    const data = await response.json();
+      setNivel(data.nivel);
+      setPuntos(data.mensajes_enviados);
 
-    if (!response.ok) {
-      console.error("Error backend:", data);
-      return;
+      if (data.subio_nivel) {
+        setMostrarNotificacion(true);
+        setTimeout(() => setMostrarNotificacion(false), 3000);
+      }
+    } catch (e) {
+      console.error("Error al registrar mensaje", e);
     }
-
-    setNivel(data.nivel);
-    setPuntos(data.mensajes_enviados);
-
-    if (data.subio_nivel) {
-      setMostrarNotificacion(true);
-      setTimeout(() => setMostrarNotificacion(false), 3000);
-    }
-  } catch (e) {
-    console.error("Error al registrar mensaje", e);
-  }
-};
-
-
-  const activarNotificacionManual = () => {
-    setMostrarNotificacion(true);
-    setTimeout(() => setMostrarNotificacion(false), 3000);
   };
 
   const handleLike = () => {
@@ -115,13 +110,31 @@ const DiscoverLivePage: React.FC = () => {
     setIsFollowing(!isFollowing);
   };
 
+  // --- 1. ESTADO DE CARGA (Pantalla negra) ---
+  if (loadingAuth) {
+    return <div style={{ backgroundColor: "#121212", minHeight: "100vh" }}></div>;
+  }
+
+  // --- 2. ESTADO BLOQUEADO (Si no hay login) ---
+  if (!isAuthorized) {
+    return (
+      <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white", display: "flex", flexDirection: "column" }}>
+        <Header showVentanaPerfil={false} setShowVentanaPerfil={() => {}} />
+        <div style={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <AuthRequired />
+        </div>
+      </div>
+    );
+  }
+
+  // --- 3. DISEÑO ORIGINAL (Si está logueado) ---
   return (
     <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white" }}>
        <Header
         showVentanaPerfil={showVentanaPerfil}
         setShowVentanaPerfil={setShowVentanaPerfil}
       />
-     
+      
       <div className="container-fluid py-4">
         <div className="row" style={{ height: "calc(100vh - 160px)" }}>
           <div className="col-lg-9 mb-4" style={{ height: "100%" }}>
@@ -286,7 +299,7 @@ const DiscoverLivePage: React.FC = () => {
               </div>
 
               <div style={{ padding: "10px", borderTop: "1px solid #333" }}>
-             
+               
               </div>
             </div>
 
@@ -350,8 +363,6 @@ const DiscoverLivePage: React.FC = () => {
 
       {mostrarNiveles && (
         <Niveles
-          currentXP={puntos}
-          maxXP={maxXP}
           onClose={() => setMostrarNiveles(false)}
         />
       )}

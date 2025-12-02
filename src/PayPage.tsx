@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import AuthRequired from "./Componentes/AuthRequired"; // <--- Importamos el bloqueo
 
 // --- Componentes de UI Auxiliares ---
 const SummaryRow: React.FC<{ label: string; value: string | number; valueColor?: string }> = ({
@@ -47,24 +48,27 @@ const PayPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // --- LÓGICA ANTI-BYPASS ---
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [loadingAuth, setLoadingAuth] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      setIsAuthorized(true);
+      setCurrentUser(JSON.parse(stored));
+    } else {
+      setIsAuthorized(false);
+    }
+    setLoadingAuth(false);
+  }, []);
+  // --------------------------
+
   // 1. Recibir datos de Shop.tsx
   const state = location.state as { coins: number; price: string } | null;
   const coinsToBuy = state?.coins || 0;
   const priceToPay = state?.price || "0.00";
-
-  // 2. Estado del Usuario (Para saber quién compra)
-  const [currentUser, setCurrentUser] = useState<any>(null);
-
-  useEffect(() => {
-    // Leemos "user" porque así lo guardamos en el Login corregido
-    const stored = localStorage.getItem("user"); 
-    if (stored) {
-        try { setCurrentUser(JSON.parse(stored)); } catch {}
-    } else {
-        // Fallback si no hay login
-        setCurrentUser({ id: 1, username: "Invitado" });
-    }
-  }, []);
 
   const [cardDetails, setCardDetails] = useState({
     number: "",
@@ -104,14 +108,20 @@ const PayPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-        // --- CONEXIÓN CON TU BACKEND (Puerto 5002) ---
-        const userId = currentUser?.id || 1; 
+        // --- CONEXIÓN CON BACKEND (Puerto 5002) ---
+        const userId = currentUser?.id; 
+
+        if (!userId) {
+            alert("Error: Usuario no identificado");
+            setIsLoading(false);
+            return;
+        }
 
         const response = await fetch("http://localhost:5002/buy-coins", {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "Authorization": "Bearer ine" // Tu token fijo
+                "Authorization": "Bearer ine"
             },
             body: JSON.stringify({
                 userId: userId,
@@ -124,13 +134,12 @@ const PayPage: React.FC = () => {
         if (response.ok) {
             setPaymentStatus("success");
             
-            // --- ACTUALIZAR LOCALSTORAGE PARA EL HEADER ---
-            // Leemos data.user.coins que devuelve tu backend
+            // Actualizar localStorage para que el Header se entere
             if (currentUser) {
-                const updatedUser = { ...currentUser, coins: data.user.coins };
+                const updatedUser = { ...currentUser, coins: data.user.coins }; // El back devuelve el usuario actualizado
                 localStorage.setItem("user", JSON.stringify(updatedUser));
                 
-                // Esto avisa al Header que se actualice
+                // Disparar evento para actualizar otros componentes
                 window.dispatchEvent(new Event("storage"));
             }
             
@@ -146,6 +155,30 @@ const PayPage: React.FC = () => {
     }
   };
 
+  // --- 1. MIENTRAS CARGA ---
+  if (loadingAuth) {
+    return <div style={{ backgroundColor: "#0d0d0d", minHeight: "100vh" }}></div>;
+  }
+
+  // --- 2. SI NO ESTÁ AUTORIZADO (BLOQUEO) ---
+  if (!isAuthorized) {
+    return (
+      <div style={{ backgroundColor: "#0d0d0d", minHeight: "100vh", color: "#fff", display: "flex", flexDirection: "column" }}>
+        <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
+            <div className="container-fluid">
+                <button className="navbar-brand d-flex align-items-center" onClick={() => navigate("/")} style={{ paddingLeft: "40px", border: "none", background: "transparent" }}>
+                    <img src="https://cdn.worldvectorlogo.com/logos/tiktok-banner-black-3.svg" alt="TikTok Banner" width="90" height="40" className="d-inline-block align-text-top" />
+                </button>
+            </div>
+        </nav>
+        <div style={{ flexGrow: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <AuthRequired />
+        </div>
+      </div>
+    );
+  }
+
+  // --- 3. CONTENIDO REAL (FORMULARIO DE PAGO) ---
   return (
     <div style={{ backgroundColor: "#0d0d0d", minHeight: "100vh", color: "#fff", fontFamily: "Inter, sans-serif" }}>
       <nav className="navbar navbar-expand-lg navbar-dark bg-black px-2 py-3">
@@ -180,7 +213,7 @@ const PayPage: React.FC = () => {
                   <>
                     <h4 className="text-center mb-4 fw-bold text-white">Resumen del pedido</h4>
                     <div className="mb-4 p-3 rounded" style={{ backgroundColor: "rgba(0,0,0,0.2)" }}>
-                      <SummaryRow label="Cuenta" value={currentUser?.username || "Cargando..."} />
+                      <SummaryRow label="Cuenta" value={currentUser?.username || "Usuario"} />
                       <SummaryRow label="Monedas a recibir" value={`🪙 ${coinsToBuy}`} />
                       <hr style={{ borderColor: "rgba(255,255,255,0.1)" }} />
                       <SummaryRow
