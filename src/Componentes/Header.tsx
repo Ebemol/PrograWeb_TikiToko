@@ -154,8 +154,6 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
           {/* Mini ventana de perfil (Opcional) */}
           {showVentanaPerfil && (
             <MiniVentanaPerfil
-              currentXP={429} 
-              maxXP={1337}
               onClose={() => setShowVentanaPerfil(false)}
             />
           )}
