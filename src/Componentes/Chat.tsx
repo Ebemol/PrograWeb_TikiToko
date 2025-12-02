@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
-import Niveles from "./Niveles"; 
+import Niveles from "./Niveles";
 
 interface Mensaje {
   usuario: string;
@@ -25,7 +25,6 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
   const [mostrarModalNivel, setMostrarModalNivel] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -34,7 +33,6 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
     scrollToBottom();
   }, [mensajes]);
 
-  // 1. CARGA INICIAL
   useEffect(() => {
     const inicializarChat = async () => {
         const stored = localStorage.getItem("user");
@@ -46,11 +44,9 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
         }
 
         try {
-            console.log("🔄 Cargando mensajes...");
             const resp = await fetch("http://localhost:5002/messages");
             if (resp.ok) {
                 const historial = await resp.json();
-                console.log("✅ Mensajes recibidos:", historial.length);
                 if (historial.length > 0) {
                     setMensajes(historial);
                 } else {
@@ -71,7 +67,6 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
     return () => { socket.off("chat_message"); };
   }, []);
 
-  // 2. ENVIAR MENSAJE
   const enviarMensaje = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nuevoTexto.trim()) return;
@@ -117,13 +112,36 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
   return (
     <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
       
-      {/* Estilos CSS */}
+      {/* ESTILOS CSS INYECTADOS
+          Aquí configuramos la barra para que sea visible y tenga color 
+      */}
       <style>{`
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: #1e1e1e; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #EE1D52; }
+        /* Animación */
         @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        
+        /* SCROLLBAR PERSONALIZADA */
+        /* Ancho de la barra */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px; 
+        }
+        
+        /* Fondo de la barra (el carril) */
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #121212; 
+            border-radius: 4px;
+        }
+        
+        /* La barra en sí (el pulgar) */
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #444; 
+            border-radius: 4px;
+            border: 2px solid #121212; /* Espacio para que se vea flotante */
+        }
+        
+        /* Color al pasar el mouse */
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #EE1D52; 
+        }
       `}</style>
 
       {mostrarModalNivel && (
@@ -135,15 +153,16 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
         </div>
       )}
 
-      {/* ÁREA DE MENSAJES */}
+      {/* ÁREA DE MENSAJES CON SCROLL */}
       <div 
         className="custom-scroll" 
         style={{ 
             flexGrow: 1, 
-            overflowY: "auto", 
+            overflowY: "auto", // Usa "scroll" si quieres ver el carril siempre, "auto" si solo cuando se llene
             padding: "10px", 
             marginBottom: "10px",
-            minHeight: "0" // CLAVE PARA FLEXBOX
+            // IMPORTANTE: height: 0 fuerza al flexbox a calcular el scroll correctamente
+            height: "0px" 
         }}
       >
         {mensajes.map((msg, index) => (
@@ -157,9 +176,11 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
             <span style={{ color: "#eee", display:"block", marginTop:"2px" }}>{msg.texto}</span>
           </div>
         ))}
+        {/* Elemento invisible para auto-scroll */}
         <div ref={messagesEndRef} />
       </div>
 
+      {/* FOOTER */}
       <div style={{ padding: "10px", backgroundColor: "#1e1e1e", borderTop: "1px solid #333" }}>
         <div onClick={() => setMostrarModalNivel(true)} style={{ cursor: "pointer", marginBottom: "10px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: "#aaa", marginBottom: "4px" }}>
