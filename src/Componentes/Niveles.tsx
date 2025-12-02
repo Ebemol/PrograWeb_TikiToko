@@ -1,106 +1,67 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom'; // No es estrictamente necesario aquí si es solo modal
 
 interface NivelesProps {
   currentXP: number;
   maxXP: number;
+  nivelActual?: number; // Nueva prop
   onClose: () => void;
 }
 
-const Niveles: React.FC<NivelesProps> = ({ currentXP, maxXP, onClose }) => {
+const Niveles: React.FC<NivelesProps> = ({ currentXP, maxXP, nivelActual = 1, onClose }) => {
   const percentage = Math.min((currentXP / maxXP) * 100, 100);
-  const navigate = useNavigate();
-
-  const cerrarSesion = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    navigate("/login");
-  };
+  const faltantes = maxXP - currentXP;
 
   return (
-    <div
-      style={{
-        // 1. ELIMINAMOS position, top y right para que respete al padre LiveChat
+    <div style={{
         backgroundColor: '#1c1c1c',
         color: 'white',
-        padding: '16px',
+        padding: '20px',
         borderRadius: '12px',
-        boxShadow: '0 0 10px rgba(0,0,0,0.5)', // Sombra un poco más oscura para contraste
-        width: '250px',
-        // zIndex no es necesario aquí si el padre ya lo tiene, pero no estorba
+        boxShadow: '0 4px 20px rgba(0,0,0,0.8)',
+        width: '260px',
+        border: '1px solid #333',
+        textAlign: 'center'
       }}
     >
-      {/* Botón de cerrar (X) que faltaba para usar la prop onClose */}
       <button 
         onClick={onClose}
-        style={{
-            position: 'absolute',
-            top: '5px',
-            right: '10px',
-            background: 'none',
-            border: 'none',
-            color: '#aaa',
-            cursor: 'pointer',
-            fontSize: '16px'
-        }}
+        style={{ position: 'absolute', top: '8px', right: '12px', background: 'none', border: 'none', color: '#888', cursor: 'pointer', fontSize: '18px' }}
       >
         ✕
       </button>
 
-      <a href="https://tuperfil.com/progra" target="_blank" rel="noopener noreferrer">
-        <img
-          src="https://i.imgur.com/KcfC1AP.png"
-          alt="Perfil"
-          style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            objectFit: 'cover',
-            marginBottom: '12px',
-            display: 'block',
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            cursor: 'pointer',
-            border: '2px solid #ff4d4d' // Un borde para que destaque
-          }}
-        />
-      </a>
+      {/* Avatar (Placeholder) */}
+      <div style={{ position: 'relative', display: 'inline-block', marginBottom: '10px' }}>
+          <img
+            src="https://i.imgur.com/KcfC1AP.png"
+            alt="Perfil"
+            style={{ width: '70px', height: '70px', borderRadius: '50%', border: '3px solid #EE1D52', objectFit: 'cover' }}
+          />
+          <div style={{ position: 'absolute', bottom: '0', right: '0', backgroundColor: '#EE1D52', borderRadius: '50%', width: '24px', height: '24px', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+              {nivelActual}
+          </div>
+      </div>
 
-      <h5 style={{textAlign: 'center', margin: '0 0 8px 0'}}>Nivel 12</h5>
-      <p style={{textAlign: 'center', margin: '0 0 10px 0', fontSize: '14px'}}>EXP: {currentXP} / {maxXP}</p>
+      <h5 style={{ margin: '5px 0', fontWeight: 'bold' }}>Nivel {nivelActual}</h5>
+      <p style={{ margin: '0 0 12px 0', fontSize: '0.85rem', color: '#aaa' }}>
+        Próximo nivel: {maxXP} XP
+      </p>
 
       {/* Barra de progreso */}
-      {/* Usamos estilos en línea por si Bootstrap no está cargado */}
-      <div style={{ width: '100%', backgroundColor: '#444', borderRadius: '5px', height: '10px', overflow: 'hidden' }}>
-        <div
-          style={{ 
-            width: `${percentage}%`,
-            height: '100%',
-            backgroundColor: '#dc3545', // Color rojo (danger de bootstrap)
-            transition: 'width 0.3s ease'
-          }}
+      <div style={{ width: '100%', backgroundColor: '#333', borderRadius: '6px', height: '12px', overflow: 'hidden', marginBottom: '8px' }}>
+        <div style={{ 
+            width: `${percentage}%`, 
+            height: '100%', 
+            background: 'linear-gradient(90deg, #EE1D52 0%, #ff4d4d 100%)', // Gradiente para que se vea moderno
+            transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+          }} 
         />
       </div>
 
-      <p style={{ marginTop: '10px', textAlign: 'center', fontSize: '0.85rem', color: '#ccc' }}>
-        ¡Te faltan {maxXP - currentXP} XP para subir!
+      <p style={{ fontSize: '0.8rem', color: '#ccc', marginTop: '10px' }}>
+        🔥 ¡Solo te faltan <strong style={{color: '#fff'}}>{faltantes} XP</strong>!
       </p>
-      <button 
-        onClick={cerrarSesion}
-        style={{
-            marginTop: '15px',
-            width: '100%',
-            padding: '8px',
-            backgroundColor: '#333',
-            border: '1px solid #555',
-            color: 'white',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '12px'
-        }}
-      >
-        Cerrar Sesión
-      </button>
     </div>
   );
 };
