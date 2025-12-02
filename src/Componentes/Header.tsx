@@ -22,7 +22,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
   const [username, setUsername] = useState<string>("Usuario");
   const [avatar, setAvatar] = useState<string>(DEFAULT_AVATAR);
 
-  // Función para leer datos locales
+  // Función para leer datos locales (Carga inmediata)
   const cargarDatosLocales = () => {
     const stored = localStorage.getItem("user");
     if (stored) {
@@ -30,7 +30,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
         const user = JSON.parse(stored);
         setCoins(user.coins || 0);
         setUsername(user.username || "Usuario");
-        // Si hay avatar guardado, usarlo, si no, el default
+        // Si hay avatar guardado (base64), usarlo; si no, el default
         setAvatar(user.avatar || DEFAULT_AVATAR);
       } catch (error) {
         console.error("Error leyendo localStorage", error);
@@ -42,7 +42,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
     // 1. Carga inicial rápida desde LocalStorage
     cargarDatosLocales();
 
-    // 2. PETICIÓN AL BACKEND (Coins + Avatar)
+    // 2. PETICIÓN AL BACKEND (Coins + Avatar actualizados)
     const token = localStorage.getItem("token");
     let userId = localStorage.getItem("userId");
 
@@ -50,28 +50,27 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
     if (!userId) {
       const stored = localStorage.getItem("user");
       if (stored) {
-        const u = JSON.parse(stored);
-        userId = u.id;
+        try {
+          const u = JSON.parse(stored);
+          userId = u.id;
+        } catch (e) { console.error(e); }
       }
     }
 
-    if (token && userId) {
-      // Usamos el endpoint genérico /user/:id que suele traer toda la info
-      axios.get(`http://localhost:5002/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
+    if (userId) {
+      // Usamos el endpoint del backend (puerto 5002)
+      axios.get(`http://localhost:5002/user/${userId}`)
       .then(res => {
-        // OJO: Dependiendo de tu backend, la info puede venir directo en res.data o en res.data.user
-        // Aquí intentamos ser flexibles:
+        // Adaptamos la respuesta según venga (res.data o res.data.user)
         const userData = res.data.user || res.data; 
 
         if (userData) {
-          // A. Actualizar estados del Header
+          // A. Actualizar estados visuales del Header
           setCoins(userData.coins || 0);
-          setAvatar(userData.avatar || DEFAULT_AVATAR); // <--- Aquí actualizamos la foto
+          setAvatar(userData.avatar || DEFAULT_AVATAR); // <--- Foto real
           setUsername(userData.username || "Usuario");
 
-          // B. Actualizar LocalStorage para que persista al recargar
+          // B. Actualizar LocalStorage para persistencia
           const storedUser = localStorage.getItem("user");
           let u = storedUser ? JSON.parse(storedUser) : {};
           
@@ -83,10 +82,12 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
       .catch((err) => console.log("Error obteniendo datos del usuario:", err));
     }
 
-    // 3. Listener para actualizar si cambia el localStorage en otra parte (login/shop)
+    // 3. Listener para mantener sincronía entre pestañas
     const handleStorageChange = () => cargarDatosLocales();
     window.addEventListener("storage", handleStorageChange);
-    const intervalId = setInterval(cargarDatosLocales, 2000); // Respaldo cada 2 seg
+    
+    // Opcional: Intervalo suave para refrescar monedas si cambian en otra parte
+    const intervalId = setInterval(cargarDatosLocales, 3000);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
@@ -138,7 +139,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
             <span className="fw-bold texto-monedas">{coins}</span>
           </button>
 
-          {/* Menú de usuario (Pasamos la URL del avatar) */}
+          {/* Menú de usuario (Pasamos la URL del avatar real) */}
           <UserMenu
             username={username}
             avatarUrl={avatar} 
@@ -150,7 +151,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
             }}
           />
 
-          {/* Mini ventana de perfil */}
+          {/* Mini ventana de perfil (Opcional) */}
           {showVentanaPerfil && (
             <MiniVentanaPerfil
               currentXP={429} 
