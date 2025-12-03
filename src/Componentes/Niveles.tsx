@@ -8,13 +8,13 @@ interface NivelesProps {
 }
 
 const Niveles: React.FC<NivelesProps> = ({ onClose }) => {
-  // Estados locales para los datos
+  // Estados locales
   const [currentXP, setCurrentXP] = useState<number>(0);
   const [nivel, setNivel] = useState<number>(1);
   const [avatar, setAvatar] = useState<string>(DEFAULT_AVATAR);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Lógica de cálculo (Basada en tu backend: Nivel * 10 = MaxXP del nivel)
+  // Meta para el siguiente nivel (Nivel * 100, o la fórmula que uses en tu backend)
   const maxXP = nivel * 10; 
 
   useEffect(() => {
@@ -28,38 +28,45 @@ const Niveles: React.FC<NivelesProps> = ({ onClose }) => {
         const userId = userLocal.id;
 
         if (userId) {
-          // 2. Consulta al Backend
+          // 2. Consulta al Backend (Puerto 5002)
           const response = await fetch(`http://localhost:5002/user/${userId}`);
           const data = await response.json();
 
           if (data.user) {
-            // 3. Actualizar estados con datos reales de la DB
-            // Usamos 'coins' como XP temporalmente según tu backend anterior, 
-            // o 'xp' si ya lo agregaste a tu schema.
-            // Aquí asumo que usas el campo 'xp' que definimos en el último schema.
+            // 3. Actualizar estados con datos frescos
+            // Compara si cambió para evitar renderizados innecesarios si quieres, 
+            // pero React lo maneja bastante bien.
             setCurrentXP(data.user.xp || 0); 
             setNivel(data.user.nivel || 1);
             setAvatar(data.user.avatar || DEFAULT_AVATAR);
           }
         }
       } catch (error) {
-        console.error("Error cargando niveles:", error);
+        console.error("Error actualizando niveles:", error);
       } finally {
         setLoading(false);
       }
     };
 
+    // Llamada inicial inmediata
     fetchUserData();
+
+    // 🔥 AUTO-REFRESH: Actualizar cada 3 segundos para ver el progreso en vivo
+    const intervalId = setInterval(fetchUserData, 3000);
+
+    // Limpieza al cerrar el componente
+    return () => clearInterval(intervalId);
   }, []);
 
   // Cálculos visuales
+  // Aseguramos que no se pase del 100% visualmente
   const percentage = Math.min((currentXP / maxXP) * 100, 100);
   const faltantes = Math.max(0, maxXP - currentXP);
 
   if (loading) {
     return (
         <div style={{ backgroundColor: '#1c1c1c', color: 'white', padding: '20px', borderRadius: '12px', border: '1px solid #333' }}>
-            Cargando...
+            <div className="spinner-border spinner-border-sm text-danger" role="status"></div> Cargando...
         </div>
     );
   }
@@ -74,7 +81,8 @@ const Niveles: React.FC<NivelesProps> = ({ onClose }) => {
         width: '260px',
         border: '1px solid #333',
         textAlign: 'center',
-        position: 'relative' // Necesario para la 'X' absoluta
+        position: 'relative',
+        animation: 'fadeIn 0.3s ease-out'
       }}
     >
       <button 
@@ -84,15 +92,21 @@ const Niveles: React.FC<NivelesProps> = ({ onClose }) => {
         ✕
       </button>
 
-      {/* Avatar Real */}
+      {/* Avatar Real con Anillo de Nivel */}
       <div style={{ position: 'relative', display: 'inline-block', marginBottom: '10px' }}>
           <img
             src={avatar}
             alt="Perfil"
             style={{ width: '70px', height: '70px', borderRadius: '50%', border: '3px solid #EE1D52', objectFit: 'cover' }}
           />
-          {/* Bolita con el nivel */}
-          <div style={{ position: 'absolute', bottom: '0', right: '0', backgroundColor: '#EE1D52', borderRadius: '50%', width: '24px', height: '24px', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+          {/* Badge de Nivel */}
+          <div style={{ 
+              position: 'absolute', bottom: '-5px', right: '-5px', 
+              backgroundColor: '#EE1D52', color: 'white',
+              borderRadius: '50%', width: '28px', height: '28px', 
+              fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+              fontWeight: 'bold', border: '2px solid #1c1c1c'
+          }}>
               {nivel}
           </div>
       </div>
@@ -100,24 +114,34 @@ const Niveles: React.FC<NivelesProps> = ({ onClose }) => {
       <h5 style={{ margin: '5px 0', fontWeight: 'bold' }}>Nivel {nivel}</h5>
       
       {/* Estadísticas */}
-      <p style={{ margin: '0 0 12px 0', fontSize: '0.85rem', color: '#aaa' }}>
-        XP Actual: {currentXP} / Meta: {maxXP}
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#aaa', marginBottom: '5px' }}>
+        <span>XP: {currentXP}</span>
+        <span>Meta: {maxXP}</span>
+      </div>
 
-      {/* Barra de progreso */}
-      <div style={{ width: '100%', backgroundColor: '#333', borderRadius: '6px', height: '12px', overflow: 'hidden', marginBottom: '8px' }}>
+      {/* Barra de progreso Animada */}
+      <div style={{ width: '100%', backgroundColor: '#333', borderRadius: '10px', height: '14px', overflow: 'hidden', marginBottom: '8px', position: 'relative' }}>
         <div style={{ 
             width: `${percentage}%`, 
             height: '100%', 
             background: 'linear-gradient(90deg, #EE1D52 0%, #ff4d4d 100%)',
-            transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+            transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+            borderRadius: '10px'
           }} 
         />
+        {/* Texto sobre la barra */}
+        <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '10px', fontWeight: 'bold', textShadow: '0 0 2px black' }}>
+            {Math.floor(percentage)}%
+        </span>
       </div>
 
-      <p style={{ fontSize: '0.8rem', color: '#ccc', marginTop: '10px' }}>
-        🔥 ¡Solo te faltan <strong style={{color: '#fff'}}>{faltantes} XP</strong>!
+      <p style={{ fontSize: '0.85rem', color: '#ccc', marginTop: '10px' }}>
+        🚀 Faltan <strong style={{color: '#fff'}}>{faltantes} XP</strong> para subir
       </p>
+
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+      `}</style>
     </div>
   );
 };
