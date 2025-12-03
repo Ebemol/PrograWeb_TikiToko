@@ -9,12 +9,19 @@ import Header from "./Componentes/Header";
 import LiveChat from "./Componentes/Chat"; 
 import GiftListModal from "./Componentes/GiftListModal"; 
 import GiftOverlay from "./Componentes/GiftOverlay";     
-import useBloqueo from "./hooks/Bloqueo"; // Ajusta la ruta si es necesario
+import useBloqueo from "./hooks/Bloqueo"; 
 
 const WHITE_BORDER = "rgba(255, 255, 255, 0.15)";
 const BACKEND_URL = "http://localhost:5002"; 
 
-// Definición de tipos
+// Regalos de respaldo
+const DEFAULT_GIFTS_FALLBACK = [
+  { id: 101, nombre: "Rosa", costo: 10, emoji: "🌹" },
+  { id: 102, nombre: "Café", costo: 25, emoji: "☕" },
+  { id: 103, nombre: "Gorra", costo: 50, emoji: "🧢" },
+  { id: 104, nombre: "TikTok", costo: 100, emoji: "🎵" },
+];
+
 interface Gift {
     id: number; 
     nombre: string;
@@ -42,21 +49,21 @@ const getLocalUser = () => {
 };
 
 const WatchPage: React.FC = () => {
-    const { id } = useParams(); // Clave del stream (ej: stream_xyz)
+    const { id } = useParams();
     const navigate = useNavigate();
     useBloqueo();
 
-    // Estados de UI
+    // Estados UI
     const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isLoadingStream, setIsLoadingStream] = useState(true);
     
-    // Estados de Datos
+    // Estados Datos
     const [stream, setStream] = useState<StreamData | null>(null); 
     const [showGiftModal, setShowGiftModal] = useState(false);
     const [userCoins, setUserCoins] = useState(0);
 
-    // 1. Cargar Usuario y Monedas
+    // 1. Cargar Usuario
     useEffect(() => {
         const localUser = getLocalUser();
         if (localUser) {
@@ -65,63 +72,66 @@ const WatchPage: React.FC = () => {
         }
     }, []);
 
-    // 2. Función para cargar datos del Stream
+    // 2. Función para cargar datos del Stream (reutilizable)
     const fetchStreamData = async () => {
         if (!id) return;
-        setIsLoadingStream(true);
         try {
-            // Llamamos al backend usando la CLAVE de la URL
             const res = await fetch(`${BACKEND_URL}/stream/key/${id}`);
             
             if (res.ok) {
                 const data = await res.json();
-                console.log("✅ Stream cargado:", data);
+                
+                // Si no tiene regalos, usar fallback
+                if (!data.gifts || data.gifts.length === 0) {
+                    data.gifts = DEFAULT_GIFTS_FALLBACK;
+                }
+
+                console.log("✅ Stream actualizado:", data);
                 setStream(data); 
             } else {
-                console.error("❌ Stream no encontrado");
-                navigate("/discover"); // Si no existe, volver a la lista
+                console.error("Stream no encontrado");
+                navigate("/discover");
             }
         } catch (e) {
-            console.error("Error conexión:", e);
+            console.error("Error de conexión:", e);
         } finally {
             setIsLoadingStream(false);
         }
     };
 
-    // Carga inicial del stream
+    // Carga inicial
     useEffect(() => {
         fetchStreamData();
     }, [id, navigate]);
 
-    // 3. Handler para abrir el modal
+    // 3. ABRIR MODAL (Y REFRESCAR REGALOS)
     const handleOpenGifts = () => {
         if (!isAuthorized) {
-            navigate("/"); // Ir a login si no está logueado
+            navigate("/"); 
             return;
         }
-        // Opcional: refrescar datos del stream aquí si quieres
+        // Recargamos para asegurar que tenemos los últimos regalos
+        fetchStreamData(); 
         setShowGiftModal(true);
     };
 
-    // 4. Handler cuando se envía un regalo exitosamente
     const handleGiftSent = (newBalance: number) => {
         setUserCoins(newBalance);
         const localUser = getLocalUser();
         if (localUser) {
             localUser.coins = newBalance;
             localStorage.setItem("user", JSON.stringify(localUser));
-            window.dispatchEvent(new Event("storage")); // Actualiza el header
+            window.dispatchEvent(new Event("storage"));
         }
     };
 
-    // Validaciones de renderizado
     if (!id) return <div className="bg-black text-white p-5">Error: ID no válido</div>;
     
     if (isLoadingStream) {
         return (
             <div className="bg-black min-vh-100 d-flex justify-content-center align-items-center text-white">
                 <div className="spinner-border text-danger me-2" role="status"></div>
-                Cargando transmisión...
+                Cargando...
             </div>
         );
     }
@@ -132,7 +142,7 @@ const WatchPage: React.FC = () => {
 
             <div className="d-flex flex-grow-1" style={{ height: "calc(100vh - 80px)" }}>
                 
-                {/* ZONA IZQUIERDA: VIDEO */}
+                {/* IZQUIERDA: VIDEO */}
                 <div className="col-lg-9 mb-4" style={{ height: "100%", padding: "20px", display: "flex", flexDirection: "column" }}>
                     
                     <div className="mb-3 d-flex justify-content-between align-items-center">
@@ -146,12 +156,8 @@ const WatchPage: React.FC = () => {
                         <div className="badge bg-danger animate-pulse">🔴 EN VIVO</div>
                     </div>
 
-                    {/* CONTENEDOR DE VIDEO + OVERLAY */}
                     <div className="ratio ratio-16x9 shadow-lg position-relative" style={{ borderRadius: "12px", overflow: "hidden", flexGrow: 1, border: `1px solid ${WHITE_BORDER}`, background: "#000" }}>
-                        
-                        {/* 🔥 OVERLAY DE ANIMACIONES 🔥 */}
                         <GiftOverlay />
-
                         <iframe
                             src={`https://vdo.ninja/?view=${id}&autoplay&clean&controls=0`} 
                             allow="autoplay; fullscreen; picture-in-picture"
@@ -162,11 +168,11 @@ const WatchPage: React.FC = () => {
 
                     <div className="mt-3 px-2 d-flex justify-content-between">
                         <p className="text-secondary small m-0 font-monospace">ID: {id}</p>
-                        <p className="text-secondary small m-0 fw-bold">Streamer: {stream?.streamer.username || "Cargando..."}</p>
+                        <p className="text-secondary small m-0 fw-bold">Streamer: {stream?.streamer.username || "..."}</p>
                     </div>
                 </div>
 
-                {/* ZONA DERECHA: CHAT */}
+                {/* DERECHA: CHAT */}
                 <div className="col-lg-3" style={{ height: "100%", borderLeft: `1px solid ${WHITE_BORDER}` }}>
                     <div style={{ backgroundColor: "#121212", height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
                         
@@ -175,15 +181,14 @@ const WatchPage: React.FC = () => {
                                 Chat
                             </h6>
                             
-                            {/* BOTÓN DE REGALOS */}
                             <Button 
                                 variant="danger"
                                 size="sm" 
                                 onClick={handleOpenGifts} 
                                 className="fw-bold d-flex align-items-center gap-2 border-0"
                                 style={{ backgroundColor: '#EE1D52', borderRadius: '20px', padding: '5px 15px' }}
-                                // Se deshabilita si no hay login o no cargó el stream
-                                disabled={!isAuthorized || !stream} 
+                                // Solo bloqueamos si NO hay login
+                                disabled={!isAuthorized} 
                             >
                                 <i className="bi bi-gift-fill"></i> Regalo
                             </Button>
@@ -203,16 +208,14 @@ const WatchPage: React.FC = () => {
             </div>
             
             {/* MODAL DE REGALOS */}
-            {stream && (
-                <GiftListModal 
-                    show={showGiftModal} 
-                    onHide={() => setShowGiftModal(false)} 
-                    gifts={stream.gifts || []} 
-                    streamId={stream.id} // Pasamos el ID numérico
-                    userCoins={userCoins} 
-                    onGiftSent={handleGiftSent} 
-                />
-            )}
+            <GiftListModal 
+                show={showGiftModal} 
+                onHide={() => setShowGiftModal(false)} 
+                gifts={stream?.gifts || []} 
+                streamId={stream?.id || null} 
+                userCoins={userCoins} 
+                onGiftSent={handleGiftSent} 
+            />
 
             <style>{`
                 .animate-pulse { animation: pulse 2s infinite; }

@@ -7,21 +7,20 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import Header from "./Componentes/Header";
 import LiveChat from "./Componentes/Chat";
 import AuthRequired from "./Componentes/AuthRequired"; 
-import GiftOverlay from "./Componentes/GiftOverlay"; // <--- 1. IMPORTAMOS EL OVERLAY
-import useBloqueo from "../src/hooks/Bloqueo"; 
+import GiftOverlay from "./Componentes/GiftOverlay"; 
+import useBloqueo from "./hooks/Bloqueo"; 
 
 const RED = "#EE1D52";
 const WHITE_BORDER = "rgba(255, 255, 255, 0.15)";
 
-// Interface actualizada con IMAGEN
+// Interface regalos
 interface GiftItem {
   nombre: string;
   cost: number;
   emoji: string;
-  image?: string | null; 
+  image?: string | null;
 }
 
-// Regalos por defecto
 const DEFAULT_GIFTS: GiftItem[] = [
   { nombre: "Rosa", cost: 10, emoji: "🌹" },
   { nombre: "Café", cost: 25, emoji: "☕" },
@@ -57,33 +56,30 @@ const GoLivePage: React.FC = () => {
   const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
   const [copiado, setCopiado] = useState(false);
 
-  // --- ESTADOS REGALOS ---
+  // Estados Regalos
   const [gifts, setGifts] = useState<GiftItem[]>(DEFAULT_GIFTS);
   const [newGiftName, setNewGiftName] = useState("");
   const [newGiftCost, setNewGiftCost] = useState("");
   const [newGiftEmoji, setNewGiftEmoji] = useState("🎁");
-  const [newGiftImage, setNewGiftImage] = useState<string | null>(null); 
+  const [newGiftImage, setNewGiftImage] = useState<string | null>(null);
   const [showGiftsConfig, setShowGiftsConfig] = useState(false);
 
-  // Generar clave automática
   useEffect(() => {
     const randomId = "stream_" + Math.random().toString(36).substr(2, 6);
     setClaveStream(randomId);
   }, []);
 
-  // --- LÓGICA FOTO REGALO ---
+  // --- LÓGICA ---
   const handleGiftImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.size > 2 * 1024 * 1024) return alert("Imagen muy pesada (Máx 2MB)");
-
       const reader = new FileReader();
       reader.onload = (event) => setNewGiftImage(event.target?.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  // --- LÓGICA AGREGAR/QUITAR REGALOS ---
   const handleAddGift = () => {
     if (!newGiftName || !newGiftCost) return;
     setGifts([...gifts, { nombre: newGiftName, cost: Number(newGiftCost), emoji: newGiftEmoji, image: newGiftImage }]);
@@ -100,7 +96,6 @@ const GoLivePage: React.FC = () => {
     setGifts(DEFAULT_GIFTS);
   };
 
-  // --- INICIAR STREAM ---
   const handleStartStream = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!titulo.trim() || !claveStream.trim()) return;
@@ -114,10 +109,9 @@ const GoLivePage: React.FC = () => {
           userId: userProfile?.id || 1,
           titulo: titulo,
           claveStream: claveStream,
-          gifts: gifts 
+          gifts: gifts
         })
       });
-
       if (resp.ok) {
         setPaso("live");
       } else {
@@ -125,14 +119,12 @@ const GoLivePage: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
-      // Si falla el back local, permitimos entrar para probar UI (Solo dev)
-      setPaso("live"); 
+      setPaso("live");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- FINALIZAR STREAM ---
   const handleStopStream = async () => {
     if (!window.confirm("¿Finalizar transmisión?")) return;
     try {
@@ -141,47 +133,47 @@ const GoLivePage: React.FC = () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId: userProfile?.id })
         });
-    } catch (error) {
-        console.error(error);
-    } finally {
-        window.location.reload();
-    }
+    } catch (error) { console.error(error); } 
+    finally { window.location.reload(); }
   };
 
+  // Copiar enlace para ESPECTADORES
   const copiarLink = () => {
-    const link = `http://localhost:5173/#/ver/${claveStream}`;
+    const link = `${window.location.origin}/#/ver/${claveStream}`;
     navigator.clipboard.writeText(link);
     setCopiado(true);
     setTimeout(() => setCopiado(false), 2000);
+  };
+
+  // 🔥 NUEVO: Copiar enlace para INVITADOS
+  const copiarLinkInvitado = () => {
+    const link = `${window.location.origin}/#/guest/${claveStream}`;
+    navigator.clipboard.writeText(link);
+    alert("✅ Enlace de INVITADO copiado.\n\nMándaselo a tu amigo para que entre a la cámara.");
   };
 
   const inputStyle: React.CSSProperties = {
     background: "#0b0b0b", border: `1px solid ${WHITE_BORDER}`, color: "#fff", borderRadius: 8, padding: "10px 15px", width: "100%", outline: "none",
   };
 
-  // --- RENDER ---
   if (loadingAuth) return <div className="bg-black min-vh-100"></div>;
 
   if (!isAuthorized) {
     return (
       <div className="bg-black min-vh-100 d-flex flex-column">
         <Header showVentanaPerfil={false} setShowVentanaPerfil={() => {}} />
-        <div className="flex-grow-1 d-flex align-items-center justify-content-center">
-          <AuthRequired />
-        </div>
+        <div className="flex-grow-1 d-flex align-items-center justify-content-center"><AuthRequired /></div>
       </div>
     );
   }
 
-  // === MODO 1: CONFIGURACIÓN ===
+  // === CONFIGURACIÓN ===
   if (paso === "config") {
     return (
       <div className="bg-black min-vh-100 text-white font-sans d-flex flex-column">
         <Header showVentanaPerfil={showVentanaPerfil} setShowVentanaPerfil={setShowVentanaPerfil} />
-        
         <div className="flex-grow-1 d-flex align-items-center justify-content-center py-5 px-3">
           <div style={{ maxWidth: "500px", width: "100%" }}>
-            
             <div className="p-4 rounded-4" style={{ border: `1px solid ${WHITE_BORDER}`, background: "#1e1e1e" }}>
                 <div className="text-center mb-4">
                     <div style={{ width: 70, height: 70, background: "#121212", borderRadius: "50%", margin: "0 auto 15px", display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${WHITE_BORDER}` }}>
@@ -189,13 +181,11 @@ const GoLivePage: React.FC = () => {
                     </div>
                     <h2 className="fw-bold">Iniciar Live</h2>
                 </div>
-
                 <form onSubmit={handleStartStream}>
                     <div className="mb-3">
                         <label className="text-secondary small fw-bold mb-2">TÍTULO</label>
-                        <input style={inputStyle} placeholder="Ej: Jugando un rato..." value={titulo} onChange={(e) => setTitulo(e.target.value)} required />
+                        <input style={inputStyle} placeholder="Ej: Jugando..." value={titulo} onChange={(e) => setTitulo(e.target.value)} required />
                     </div>
-
                     <div className="mb-4">
                         <label className="text-secondary small fw-bold mb-2 d-flex justify-content-between">
                             <span>CLAVE DE STREAM</span>
@@ -204,36 +194,27 @@ const GoLivePage: React.FC = () => {
                         <input style={inputStyle} value={claveStream} onChange={(e) => setClaveStream(e.target.value)} required />
                     </div>
 
-                    {/* Configuración de Regalos */}
+                    {/* Config Regalos */}
                     <div className="mb-4">
-                        <div 
-                            className="d-flex justify-content-between align-items-center p-3 rounded-3" 
-                            style={{ background: "#121212", border: `1px solid ${WHITE_BORDER}`, cursor: "pointer" }}
-                            onClick={() => setShowGiftsConfig(!showGiftsConfig)}
-                        >
+                        <div className="d-flex justify-content-between align-items-center p-3 rounded-3" style={{ background: "#121212", border: `1px solid ${WHITE_BORDER}`, cursor: "pointer" }} onClick={() => setShowGiftsConfig(!showGiftsConfig)}>
                             <span className="small fw-bold"><i className="bi bi-gift-fill me-2 text-secondary"></i>Configurar Regalos</span>
                             <i className={`bi bi-chevron-${showGiftsConfig ? "up" : "down"} text-secondary`}></i>
                         </div>
-
                         {showGiftsConfig && (
                             <div className="mt-2 p-3 rounded-3" style={{ border: `1px solid ${WHITE_BORDER}`, background: "#121212" }}>
                                 <div className="d-flex gap-2 mb-3 align-items-center">
                                     <input placeholder="Nombre" style={{...inputStyle, padding: "6px 10px"}} value={newGiftName} onChange={e => setNewGiftName(e.target.value)} />
                                     <input type="number" placeholder="$" style={{...inputStyle, padding: "6px 10px", width: "70px"}} value={newGiftCost} onChange={e => setNewGiftCost(e.target.value)} />
-                                    
                                     <label className="btn btn-sm d-flex align-items-center justify-content-center" style={{ background: "#1a1a1a", border: `1px solid ${WHITE_BORDER}`, color: "white", width: "40px", height: "36px", cursor: "pointer", margin: 0 }}>
                                         {newGiftImage ? <img src={newGiftImage} width="20" /> : <i className="bi bi-image"></i>}
                                         <input type="file" hidden accept="image/*" onChange={handleGiftImageChange} />
                                     </label>
-
                                     <button type="button" className="btn btn-sm btn-light fw-bold" onClick={handleAddGift}>+</button>
                                 </div>
-
                                 <div className="d-flex flex-wrap gap-2">
                                     {gifts.map((g, i) => (
                                         <span key={i} className="badge bg-dark border border-secondary p-2 d-flex align-items-center gap-2">
-                                            {g.image ? <img src={g.image} width="15" alt="gift" /> : g.emoji} 
-                                            {g.nombre} <small className="text-secondary">({g.cost})</small>
+                                            {g.image ? <img src={g.image} width="15" /> : g.emoji} {g.nombre} <small className="text-secondary">({g.cost})</small>
                                             <i className="bi bi-x text-danger" style={{ cursor: "pointer" }} onClick={() => handleRemoveGift(i)}></i>
                                         </span>
                                     ))}
@@ -243,12 +224,7 @@ const GoLivePage: React.FC = () => {
                         )}
                     </div>
 
-                    <button 
-                        type="submit" 
-                        className="btn w-100 py-3 rounded-3 fw-bold text-white shadow-lg"
-                        disabled={isLoading}
-                        style={{ background: RED, border: "none", fontSize: "1.1rem" }}
-                    >
+                    <button type="submit" className="btn w-100 py-3 rounded-3 fw-bold text-white shadow-lg" disabled={isLoading} style={{ background: RED, border: "none", fontSize: "1.1rem" }}>
                         {isLoading ? "Iniciando..." : "EMITIR AHORA"}
                     </button>
                 </form>
@@ -259,7 +235,7 @@ const GoLivePage: React.FC = () => {
     );
   }
 
-  // === MODO 2: EN VIVO ===
+  // === EN VIVO ===
   return (
     <div className="bg-black min-vh-100 d-flex flex-column overflow-hidden text-white">
       <Header showVentanaPerfil={showVentanaPerfil} setShowVentanaPerfil={setShowVentanaPerfil} />
@@ -267,7 +243,6 @@ const GoLivePage: React.FC = () => {
       <div className="d-flex flex-grow-1" style={{ height: "calc(100vh - 80px)" }}>
         <div className="col-lg-9 mb-4" style={{ height: "100%", padding: "20px", display: "flex", flexDirection: "column" }}>
             
-            {/* Info Bar */}
             <div style={{ backgroundColor: "#1e1e1e", borderRadius: "12px", padding: "12px 20px", marginBottom: "15px", display: "flex", justifyContent: "space-between", alignItems: "center", border: `1px solid ${WHITE_BORDER}` }}>
                 <div className="d-flex align-items-center gap-3">
                     <img src={userProfile?.avatar || "https://i.pravatar.cc/150"} alt="Avatar" className="rounded-circle" width="45" height="45" style={{objectFit: "cover", border: "2px solid #333"}} />
@@ -279,30 +254,45 @@ const GoLivePage: React.FC = () => {
                         </div>
                     </div>
                 </div>
+                
                 <div className="d-flex gap-2">
-                    <button className={`btn btn-sm ${copiado ? "btn-success" : "btn-outline-secondary"} d-flex align-items-center gap-2`} onClick={copiarLink}>
+                    {/* BOTÓN INVITAR (NUEVO) */}
+                    <button 
+                        className="btn btn-sm btn-outline-info d-flex align-items-center gap-2 border-0 text-white" 
+                        onClick={copiarLinkInvitado} 
+                        style={{ background: "rgba(13, 110, 253, 0.2)" }}
+                        title="Invitar a alguien a transmitir contigo"
+                    >
+                        <i className="bi bi-person-plus-fill"></i>
+                        <span className="d-none d-md-inline">Invitar</span>
+                    </button>
+
+                    {/* BOTÓN COMPARTIR LINK */}
+                    <button 
+                        className={`btn btn-sm ${copiado ? "btn-success" : "btn-outline-secondary"} d-flex align-items-center gap-2 border-0 text-white`} 
+                        onClick={copiarLink}
+                        style={{ background: "#1f1f1f" }}
+                    >
                         {copiado ? <i className="bi bi-check-lg"></i> : <i className="bi bi-share-fill"></i>}
                         <span className="d-none d-md-inline">{copiado ? "Copiado" : "Link"}</span>
                     </button>
+                    
                     <button className="btn btn-danger btn-sm px-3" onClick={handleStopStream}>Finalizar</button>
                 </div>
             </div>
 
-            {/* Video */}
+            {/* Video Iframe (MODO HOST DE SALA) */}
             <div className="ratio ratio-16x9" style={{ borderRadius: "12px", overflow: "hidden", flexGrow: 1, border: `1px solid ${WHITE_BORDER}`, background: "#000", position: "relative" }}>
-                
-                {/* 🔥 OVERLAY DE ANIMACIONES PARA EL STREAMER 🔥 */}
                 <GiftOverlay />
-
                 <iframe
-                  src={`https://vdo.ninja/?push=${claveStream}&webcam&microphone&autostart`}
+                  // 🔥 CAMBIO: ?room=${claveStream}&push=Host para permitir invitados
+                  src={`https://vdo.ninja/?room=${claveStream}&push=Host&webcam&microphone&autostart`}
                   allow="camera; microphone; autoplay; fullscreen"
                   frameBorder="0" width="100%" height="100%" title="Cámara"
                 ></iframe>
             </div>
         </div>
 
-        {/* ZONA DERECHA (CHAT) */}
         <div className="col-lg-3" style={{ height: "100%", position: "relative", borderLeft: `1px solid ${WHITE_BORDER}` }}>
             <div style={{ backgroundColor: "#1e1e1e", height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
               <div style={{ padding: "15px", borderBottom: "1px solid #333" }}>

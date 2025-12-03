@@ -19,8 +19,9 @@ import Configuracion from "./UserSettingsModal";
 
 // --- STREAMING ---
 import DiscoverLivePage from "./DiscoverLivePage";
-import GoLivePage from "./Streamsconfigs"; // Asegúrate de que este sea el archivo correcto
-import WatchPage from "./WatchPage";      
+import GoLivePage from "./Streamsconfigs"; 
+import WatchPage from "./WatchPage";
+import GuestPage from "./GuestPage"; // <--- 1. NUEVO IMPORT (Asegúrate de que la ruta sea correcta)
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -42,14 +43,17 @@ createRoot(document.getElementById("root")!).render(
 
         {/* --- RUTAS DE STREAMING --- */}
         
-        {/* 1. Explorar (CORREGIDO: Deber ser /discover para que funcione el botón 'Volver') */}
+        {/* 1. Explorar */}
         <Route path="/viewer" element={<DiscoverLivePage />} />
 
         {/* 2. Emitir */}
         <Route path="/golive" element={<GoLivePage />} />
 
-        {/* 3. Ver (Correcto) */}
+        {/* 3. Ver */}
         <Route path="/ver/:id" element={<WatchPage />} />
+
+        {/* 4. Invitado (NUEVA RUTA) */}
+        <Route path="/guest/:id" element={<GuestPage />} />
 
       </Routes>
     </HashRouter>
