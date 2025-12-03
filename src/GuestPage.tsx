@@ -10,7 +10,7 @@ import AuthRequired from "./Componentes/AuthRequired";
 import useBloqueo from "./hooks/Bloqueo";
 
 const WHITE_BORDER = "rgba(255, 255, 255, 0.15)";
-const BACKEND_URL = "http://localhost:5002";
+const BACKEND_URL = "https://prograweb-tikitoko-backend-1.onrender.com";
 
 const GuestPage: React.FC = () => {
   const { id } = useParams(); // El ID de la sala (Clave del stream)

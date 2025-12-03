@@ -12,7 +12,7 @@ interface LiveChatProps {
   onMensajeEnviado?: () => void;
 }
 
-const socket = io("http://localhost:5002");
+const socket = io("https://prograweb-tikitoko-backend-1.onrender.com");
 
 const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
@@ -44,7 +44,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
         }
 
         try {
-            const resp = await fetch("http://localhost:5002/messages");
+            const resp = await fetch("https://prograweb-tikitoko-backend-1.onrender.com/messages");
             if (resp.ok) {
                 const historial = await resp.json();
                 if (historial.length > 0) {
@@ -78,7 +78,7 @@ const LiveChat: React.FC<LiveChatProps> = ({ onMensajeEnviado }) => {
       const textoEnviado = nuevoTexto;
       setNuevoTexto("");
 
-      const resp = await fetch(`http://localhost:5002/mensaje/${userLocal.id}`, {
+      const resp = await fetch(`https://prograweb-tikitoko-backend-1.onrender.com/mensaje/${userLocal.id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 

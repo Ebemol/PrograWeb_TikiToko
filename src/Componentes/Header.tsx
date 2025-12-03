@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ showVentanaPerfil, setShowVentanaPerfil
 
     if (userId) {
       // Usamos el endpoint del backend (puerto 5002)
-      axios.get(`http://localhost:5002/user/${userId}`)
+      axios.get(`https://prograweb-tikitoko-backend-1.onrender.com/user/${userId}`)
       .then(res => {
         // Adaptamos la respuesta según venga (res.data o res.data.user)
         const userData = res.data.user || res.data; 

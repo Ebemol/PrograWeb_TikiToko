@@ -30,7 +30,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ username, avatarUrl }) => {
 
   if (token) {
     try {
-      await fetch("http://localhost:5002/logout", {
+      await fetch("https://prograweb-tikitoko-backend-1.onrender.com/logout", {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

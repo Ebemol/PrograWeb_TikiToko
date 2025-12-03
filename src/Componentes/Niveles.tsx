@@ -29,7 +29,7 @@ const Niveles: React.FC<NivelesProps> = ({ onClose }) => {
 
         if (userId) {
           // 2. Consulta al Backend (Puerto 5002)
-          const response = await fetch(`http://localhost:5002/user/${userId}`);
+          const response = await fetch(`https://prograweb-tikitoko-backend-1.onrender.com/user/${userId}`);
           const data = await response.json();
 
           if (data.user) {

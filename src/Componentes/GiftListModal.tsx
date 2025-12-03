@@ -3,7 +3,7 @@ import { Modal, Button, Alert, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const BACKEND_URL = "http://localhost:5002";
+const BACKEND_URL = "https://prograweb-tikitoko-backend-1.onrender.com";
 const RED = "#EE1D52";
 const WHITE_BORDER = "rgba(255, 255, 255, 0.15)";
 
