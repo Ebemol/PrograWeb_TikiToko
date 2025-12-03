@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, HashRouter, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
 
 // --- TUS COMPONENTES ---
@@ -25,6 +25,7 @@ import GuestPage from "./GuestPage"; // <--- 1. NUEVO IMPORT (Asegúrate de que 
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    <BrowserRouter basename="/PrograWeb_TikiToko">
     <HashRouter>
       <Routes>
         {/* Rutas Generales */}
@@ -57,5 +58,6 @@ createRoot(document.getElementById("root")!).render(
 
       </Routes>
     </HashRouter>
+    </BrowserRouter>
   </StrictMode>
 );
