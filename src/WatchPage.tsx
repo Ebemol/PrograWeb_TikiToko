@@ -1,325 +1,225 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { Button } from 'react-bootstrap'; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 // Componentes
 import Header from "./Componentes/Header";
-import LiveChat from "./Componentes/Chat";
-import AuthRequired from "./Componentes/AuthRequired"; 
-import GiftOverlay from "./Componentes/GiftOverlay"; 
-import useBloqueo from "./hooks/Bloqueo"; 
+import LiveChat from "./Componentes/Chat"; 
+import GiftListModal from "./Componentes/GiftListModal"; 
+import GiftOverlay from "./Componentes/GiftOverlay";     
+import useBloqueo from "./hooks/Bloqueo"; // Ajusta la ruta si es necesario
 
-const RED = "#EE1D52";
 const WHITE_BORDER = "rgba(255, 255, 255, 0.15)";
+const BACKEND_URL = "http://localhost:5002"; 
 
-// Interfaz de Regalos
-interface GiftItem {
-  nombre: string;
-  cost: number;
-  emoji: string;
-  image?: string | null;
+// Definición de tipos
+interface Gift {
+    id: number; 
+    nombre: string;
+    costo: number;
+    emoji: string;
+    image?: string | null;
 }
 
-// Regalos por defecto
-const DEFAULT_GIFTS: GiftItem[] = [
-  { nombre: "Rosa", cost: 10, emoji: "🌹" },
-  { nombre: "Café", cost: 25, emoji: "☕" },
-  { nombre: "Gorra", cost: 50, emoji: "🧢" },
-  { nombre: "TikTok", cost: 100, emoji: "🎵" },
-];
+interface StreamData {
+    id: number; 
+    titulo: string;
+    clave: string;
+    isLive: boolean;
+    gifts: Gift[]; 
+    streamer: {
+        id: number;
+        username: string;
+        avatar: string | null;
+    };
+}
 
-const GoLivePage: React.FC = () => {
-  const navigate = useNavigate();
-  useBloqueo(); 
-
-  // --- SEGURIDAD ---
-  const [isAuthorized, setIsAuthorized] = useState(false);
-  const [loadingAuth, setLoadingAuth] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      setIsAuthorized(true);
-      setUserProfile(JSON.parse(stored));
-    } else {
-      setIsAuthorized(false);
-    }
-    setLoadingAuth(false);
-  }, []);
-
-  // --- ESTADOS ---
-  const [paso, setPaso] = useState<"config" | "live">("config");
-  const [titulo, setTitulo] = useState("");
-  const [claveStream, setClaveStream] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
-  const [copiado, setCopiado] = useState(false);
-
-  // Estados Regalos Config
-  const [gifts, setGifts] = useState<GiftItem[]>(DEFAULT_GIFTS);
-  const [newGiftName, setNewGiftName] = useState("");
-  const [newGiftCost, setNewGiftCost] = useState("");
-  const [newGiftEmoji, setNewGiftEmoji] = useState("🎁");
-  const [newGiftImage, setNewGiftImage] = useState<string | null>(null);
-  const [showGiftsConfig, setShowGiftsConfig] = useState(false);
-
-  // Generar clave automática al entrar
-  useEffect(() => {
-    const randomId = "stream_" + Math.random().toString(36).substr(2, 6);
-    setClaveStream(randomId);
-  }, []);
-
-  // --- LÓGICA DE FOTOS ---
-  const handleGiftImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.size > 2 * 1024 * 1024) return alert("Imagen muy pesada (Máx 2MB)");
-      const reader = new FileReader();
-      reader.onload = (event) => setNewGiftImage(event.target?.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // --- LÓGICA DE REGALOS ---
-  const handleAddGift = () => {
-    if (!newGiftName || !newGiftCost) return;
-    setGifts([...gifts, { 
-        nombre: newGiftName, 
-        cost: Number(newGiftCost), 
-        emoji: newGiftEmoji,
-        image: newGiftImage 
-    }]);
-    setNewGiftName("");
-    setNewGiftCost("");
-    setNewGiftImage(null);
-  };
-
-  const handleRemoveGift = (index: number) => {
-    setGifts(gifts.filter((_, i) => i !== index));
-  };
-
-  // --- INICIAR STREAM ---
-  const handleStartStream = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!titulo.trim() || !claveStream.trim()) return;
-
-    setIsLoading(true);
-    try {
-      // Enviamos al backend todo: usuario, título, clave y REGALOS
-      const resp = await fetch("http://localhost:5002/stream/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: userProfile?.id,
-          titulo: titulo,
-          claveStream: claveStream,
-          gifts: gifts 
-        })
-      });
-
-      if (resp.ok) {
-        setPaso("live"); // Cambiamos a la vista de "En Vivo"
-      } else {
-        const data = await resp.json();
-        alert("Error: " + (data.error || "No se pudo iniciar"));
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error de conexión con el servidor");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // --- FINALIZAR STREAM ---
-  const handleStopStream = async () => {
-    if (!window.confirm("¿Seguro que quieres finalizar la transmisión?")) return;
-    try {
-        await fetch("http://localhost:5002/stream/end", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: userProfile?.id })
-        });
-    } catch (error) {
-        console.error(error);
-    } finally {
-        window.location.reload();
-    }
-  };
-
-  const copiarLink = () => {
-    const link = `http://localhost:5173/#/ver/${claveStream}`;
-    navigator.clipboard.writeText(link);
-    setCopiado(true);
-    setTimeout(() => setCopiado(false), 2000);
-  };
-
-  const inputStyle: React.CSSProperties = {
-    background: "#0b0b0b", border: `1px solid ${WHITE_BORDER}`, color: "#fff", borderRadius: 8, padding: "10px 15px", width: "100%", outline: "none",
-  };
-
-  // --- RENDER ---
-  if (loadingAuth) return <div className="bg-black min-vh-100"></div>;
-
-  if (!isAuthorized) {
-    return (
-      <div className="bg-black min-vh-100 d-flex flex-column">
-        <Header showVentanaPerfil={false} setShowVentanaPerfil={() => {}} />
-        <div className="flex-grow-1 d-flex align-items-center justify-content-center">
-          <AuthRequired />
-        </div>
-      </div>
-    );
-  }
-
-  // === MODO 1: CONFIGURACIÓN ===
-  if (paso === "config") {
-    return (
-      <div className="bg-black min-vh-100 text-white font-sans d-flex flex-column">
-        <Header showVentanaPerfil={showVentanaPerfil} setShowVentanaPerfil={setShowVentanaPerfil} />
-        
-        <div className="flex-grow-1 d-flex align-items-center justify-content-center py-5 px-3">
-          <div style={{ maxWidth: "500px", width: "100%" }}>
-            
-            <div className="p-4 rounded-4 shadow-lg" style={{ border: `1px solid ${WHITE_BORDER}`, background: "#1e1e1e" }}>
-                <div className="text-center mb-4">
-                    <div style={{ width: 70, height: 70, background: "#121212", borderRadius: "50%", margin: "0 auto 15px", display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${WHITE_BORDER}` }}>
-                        <i className="bi bi-broadcast" style={{ fontSize: "2rem", color: RED }}></i>
-                    </div>
-                    <h2 className="fw-bold">Iniciar Live</h2>
-                </div>
-
-                <form onSubmit={handleStartStream}>
-                    <div className="mb-3">
-                        <label className="text-secondary small fw-bold mb-2">TÍTULO</label>
-                        <input style={inputStyle} placeholder="Ej: Jugando un rato..." value={titulo} onChange={(e) => setTitulo(e.target.value)} required />
-                    </div>
-
-                    <div className="mb-4">
-                        <label className="text-secondary small fw-bold mb-2 d-flex justify-content-between">
-                            <span>CLAVE DE STREAM</span>
-                            <span style={{ color: RED, cursor: "pointer", fontSize: "0.8rem" }} onClick={() => setClaveStream("stream_" + Math.random().toString(36).substr(2, 6))}>Generar nueva</span>
-                        </label>
-                        <input style={inputStyle} value={claveStream} onChange={(e) => setClaveStream(e.target.value)} required />
-                    </div>
-
-                    {/* Configurar Regalos */}
-                    <div className="mb-4">
-                        <div 
-                            className="d-flex justify-content-between align-items-center p-3 rounded-3" 
-                            style={{ background: "#121212", border: `1px solid ${WHITE_BORDER}`, cursor: "pointer" }}
-                            onClick={() => setShowGiftsConfig(!showGiftsConfig)}
-                        >
-                            <span className="small fw-bold"><i className="bi bi-gift-fill me-2 text-secondary"></i>Configurar Regalos</span>
-                            <i className={`bi bi-chevron-${showGiftsConfig ? "up" : "down"} text-secondary`}></i>
-                        </div>
-
-                        {showGiftsConfig && (
-                            <div className="mt-2 p-3 rounded-3" style={{ border: `1px solid ${WHITE_BORDER}`, background: "#121212" }}>
-                                <div className="d-flex gap-2 mb-3 align-items-center">
-                                    <input placeholder="Nombre" style={{...inputStyle, padding: "6px 10px"}} value={newGiftName} onChange={e => setNewGiftName(e.target.value)} />
-                                    <input type="number" placeholder="$" style={{...inputStyle, padding: "6px 10px", width: "70px"}} value={newGiftCost} onChange={e => setNewGiftCost(e.target.value)} />
-                                    
-                                    {/* Botón subir imagen */}
-                                    <label className="btn btn-sm d-flex align-items-center justify-content-center" style={{ background: "#1a1a1a", border: `1px solid ${WHITE_BORDER}`, color: "white", width: "40px", height: "36px", cursor: "pointer", margin: 0 }}>
-                                        {newGiftImage ? <img src={newGiftImage} width="20" alt="preview" /> : <i className="bi bi-image"></i>}
-                                        <input type="file" hidden accept="image/*" onChange={handleGiftImageChange} />
-                                    </label>
-
-                                    <button type="button" className="btn btn-sm btn-light fw-bold" onClick={handleAddGift}>+</button>
-                                </div>
-
-                                <div className="d-flex flex-wrap gap-2">
-                                    {gifts.map((g, i) => (
-                                        <span key={i} className="badge bg-dark border border-secondary p-2 d-flex align-items-center gap-2">
-                                            {g.image ? <img src={g.image} width="15" alt="gift" /> : g.emoji} 
-                                            {g.nombre} <small className="text-secondary">({g.cost})</small>
-                                            <i className="bi bi-x text-danger" style={{ cursor: "pointer" }} onClick={() => handleRemoveGift(i)}></i>
-                                        </span>
-                                    ))}
-                                </div>
-                                <button type="button" className="btn btn-link btn-sm text-secondary p-0 mt-3 small" onClick={() => setGifts(DEFAULT_GIFTS)}>Restablecer default</button>
-                            </div>
-                        )}
-                    </div>
-
-                    <button 
-                        type="submit" 
-                        className="btn w-100 py-3 rounded-3 fw-bold text-white shadow-lg"
-                        disabled={isLoading}
-                        style={{ background: RED, border: "none", fontSize: "1.1rem" }}
-                    >
-                        {isLoading ? "Iniciando..." : "EMITIR AHORA"}
-                    </button>
-                </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // === MODO 2: EN VIVO ===
-  return (
-    <div className="bg-black min-vh-100 d-flex flex-column overflow-hidden text-white">
-      <Header showVentanaPerfil={showVentanaPerfil} setShowVentanaPerfil={setShowVentanaPerfil} />
-
-      <div className="d-flex flex-grow-1" style={{ height: "calc(100vh - 80px)" }}>
-        
-        {/* VIDEO */}
-        <div className="col-lg-9 mb-4" style={{ height: "100%", padding: "20px", display: "flex", flexDirection: "column" }}>
-            
-            <div style={{ backgroundColor: "#1e1e1e", borderRadius: "12px", padding: "12px 20px", marginBottom: "15px", display: "flex", justifyContent: "space-between", alignItems: "center", border: `1px solid ${WHITE_BORDER}` }}>
-                <div className="d-flex align-items-center gap-3">
-                    <img src={userProfile?.avatar || "https://i.pravatar.cc/150"} alt="Avatar" className="rounded-circle" width="45" height="45" style={{objectFit: "cover", border: "2px solid #333"}} />
-                    <div>
-                        <h5 className="m-0 fw-bold fs-6">{userProfile?.username || "Usuario"}</h5>
-                        <div className="d-flex align-items-center gap-2">
-                            <span className="badge bg-danger animate-pulse d-flex align-items-center gap-1" style={{ fontSize: "0.7rem" }}>🔴 LIVE</span>
-                            <span className="text-white-50 small text-truncate">{titulo}</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="d-flex gap-2">
-                    <button className={`btn btn-sm ${copiado ? "btn-success" : "btn-outline-secondary"} d-flex align-items-center gap-2`} onClick={copiarLink}>
-                        {copiado ? <i className="bi bi-check-lg"></i> : <i className="bi bi-share-fill"></i>}
-                        <span className="d-none d-md-inline">{copiado ? "Copiado" : "Link"}</span>
-                    </button>
-                    <button className="btn btn-danger btn-sm px-3" onClick={handleStopStream}>Finalizar</button>
-                </div>
-            </div>
-
-            <div className="ratio ratio-16x9" style={{ borderRadius: "12px", overflow: "hidden", flexGrow: 1, border: `1px solid ${WHITE_BORDER}`, background: "#000", position: "relative" }}>
-                <GiftOverlay />
-                <iframe
-                  src={`https://vdo.ninja/?push=${claveStream}&webcam&microphone&autostart`}
-                  allow="camera; microphone; autoplay; fullscreen"
-                  frameBorder="0" width="100%" height="100%" title="Cámara"
-                ></iframe>
-            </div>
-        </div>
-
-        {/* CHAT */}
-        <div className="col-lg-3" style={{ height: "100%", position: "relative", borderLeft: `1px solid ${WHITE_BORDER}` }}>
-            <div style={{ backgroundColor: "#1e1e1e", height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-              <div style={{ padding: "15px", borderBottom: "1px solid #333" }}>
-                <h5 className="mb-0 fw-bold text-uppercase" style={{ fontSize: "0.9rem" }}>Chat en vivo</h5>
-              </div>
-              <div style={{ flexGrow: 1, position: "relative" }}>
-                <LiveChat />
-              </div>
-            </div>
-        </div>
-      </div>
-
-      <style>{`
-        .animate-pulse { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-      `}</style>
-    </div>
-  );
+const getLocalUser = () => {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
 };
 
-export default GoLivePage;
+const WatchPage: React.FC = () => {
+    const { id } = useParams(); // Clave del stream (ej: stream_xyz)
+    const navigate = useNavigate();
+    useBloqueo();
+
+    // Estados de UI
+    const [showVentanaPerfil, setShowVentanaPerfil] = useState(false);
+    const [isAuthorized, setIsAuthorized] = useState(false);
+    const [isLoadingStream, setIsLoadingStream] = useState(true);
+    
+    // Estados de Datos
+    const [stream, setStream] = useState<StreamData | null>(null); 
+    const [showGiftModal, setShowGiftModal] = useState(false);
+    const [userCoins, setUserCoins] = useState(0);
+
+    // 1. Cargar Usuario y Monedas
+    useEffect(() => {
+        const localUser = getLocalUser();
+        if (localUser) {
+            setIsAuthorized(true);
+            setUserCoins(localUser.coins || 0);
+        }
+    }, []);
+
+    // 2. Función para cargar datos del Stream
+    const fetchStreamData = async () => {
+        if (!id) return;
+        setIsLoadingStream(true);
+        try {
+            // Llamamos al backend usando la CLAVE de la URL
+            const res = await fetch(`${BACKEND_URL}/stream/key/${id}`);
+            
+            if (res.ok) {
+                const data = await res.json();
+                console.log("✅ Stream cargado:", data);
+                setStream(data); 
+            } else {
+                console.error("❌ Stream no encontrado");
+                navigate("/discover"); // Si no existe, volver a la lista
+            }
+        } catch (e) {
+            console.error("Error conexión:", e);
+        } finally {
+            setIsLoadingStream(false);
+        }
+    };
+
+    // Carga inicial del stream
+    useEffect(() => {
+        fetchStreamData();
+    }, [id, navigate]);
+
+    // 3. Handler para abrir el modal
+    const handleOpenGifts = () => {
+        if (!isAuthorized) {
+            navigate("/"); // Ir a login si no está logueado
+            return;
+        }
+        // Opcional: refrescar datos del stream aquí si quieres
+        setShowGiftModal(true);
+    };
+
+    // 4. Handler cuando se envía un regalo exitosamente
+    const handleGiftSent = (newBalance: number) => {
+        setUserCoins(newBalance);
+        const localUser = getLocalUser();
+        if (localUser) {
+            localUser.coins = newBalance;
+            localStorage.setItem("user", JSON.stringify(localUser));
+            window.dispatchEvent(new Event("storage")); // Actualiza el header
+        }
+    };
+
+    // Validaciones de renderizado
+    if (!id) return <div className="bg-black text-white p-5">Error: ID no válido</div>;
+    
+    if (isLoadingStream) {
+        return (
+            <div className="bg-black min-vh-100 d-flex justify-content-center align-items-center text-white">
+                <div className="spinner-border text-danger me-2" role="status"></div>
+                Cargando transmisión...
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-black min-vh-100 d-flex flex-column overflow-hidden text-white">
+            <Header showVentanaPerfil={showVentanaPerfil} setShowVentanaPerfil={setShowVentanaPerfil} />
+
+            <div className="d-flex flex-grow-1" style={{ height: "calc(100vh - 80px)" }}>
+                
+                {/* ZONA IZQUIERDA: VIDEO */}
+                <div className="col-lg-9 mb-4" style={{ height: "100%", padding: "20px", display: "flex", flexDirection: "column" }}>
+                    
+                    <div className="mb-3 d-flex justify-content-between align-items-center">
+                        <button 
+                            className="btn btn-sm btn-outline-secondary text-white border-0 d-flex align-items-center gap-2" 
+                            onClick={() => navigate("/discover")} 
+                            style={{ background: "#1f1f1f" }}
+                        >
+                            <i className="bi bi-arrow-left"></i> Volver
+                        </button>
+                        <div className="badge bg-danger animate-pulse">🔴 EN VIVO</div>
+                    </div>
+
+                    {/* CONTENEDOR DE VIDEO + OVERLAY */}
+                    <div className="ratio ratio-16x9 shadow-lg position-relative" style={{ borderRadius: "12px", overflow: "hidden", flexGrow: 1, border: `1px solid ${WHITE_BORDER}`, background: "#000" }}>
+                        
+                        {/* 🔥 OVERLAY DE ANIMACIONES 🔥 */}
+                        <GiftOverlay />
+
+                        <iframe
+                            src={`https://vdo.ninja/?view=${id}&autoplay&clean&controls=0`} 
+                            allow="autoplay; fullscreen; picture-in-picture"
+                            style={{ width: "100%", height: "100%", border: "none" }}
+                            title="Stream Viewer"
+                        ></iframe>
+                    </div>
+
+                    <div className="mt-3 px-2 d-flex justify-content-between">
+                        <p className="text-secondary small m-0 font-monospace">ID: {id}</p>
+                        <p className="text-secondary small m-0 fw-bold">Streamer: {stream?.streamer.username || "Cargando..."}</p>
+                    </div>
+                </div>
+
+                {/* ZONA DERECHA: CHAT */}
+                <div className="col-lg-3" style={{ height: "100%", borderLeft: `1px solid ${WHITE_BORDER}` }}>
+                    <div style={{ backgroundColor: "#121212", height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                        
+                        <div className="d-flex justify-content-between align-items-center" style={{ padding: "15px", borderBottom: `1px solid ${WHITE_BORDER}`, background: "#0b0b0b" }}>
+                            <h6 className="mb-0 fw-bold text-uppercase" style={{ fontSize: "0.85rem", letterSpacing: "1px", color: "#888" }}>
+                                Chat
+                            </h6>
+                            
+                            {/* BOTÓN DE REGALOS */}
+                            <Button 
+                                variant="danger"
+                                size="sm" 
+                                onClick={handleOpenGifts} 
+                                className="fw-bold d-flex align-items-center gap-2 border-0"
+                                style={{ backgroundColor: '#EE1D52', borderRadius: '20px', padding: '5px 15px' }}
+                                // Se deshabilita si no hay login o no cargó el stream
+                                disabled={!isAuthorized || !stream} 
+                            >
+                                <i className="bi bi-gift-fill"></i> Regalo
+                            </Button>
+                        </div>
+
+                        <div style={{ flexGrow: 1, position: "relative" }}>
+                            {isAuthorized ? <LiveChat /> : (
+                                <div className="d-flex align-items-center justify-content-center h-100 text-secondary flex-column gap-2">
+                                    <p className="m-0">Inicia sesión para chatear</p>
+                                    <Button onClick={() => navigate("/")} variant="outline-light" size="sm">Login</Button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            {/* MODAL DE REGALOS */}
+            {stream && (
+                <GiftListModal 
+                    show={showGiftModal} 
+                    onHide={() => setShowGiftModal(false)} 
+                    gifts={stream.gifts || []} 
+                    streamId={stream.id} // Pasamos el ID numérico
+                    userCoins={userCoins} 
+                    onGiftSent={handleGiftSent} 
+                />
+            )}
+
+            <style>{`
+                .animate-pulse { animation: pulse 2s infinite; }
+                @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+            `}</style>
+        </div>
+    );
+};
+
+export default WatchPage;

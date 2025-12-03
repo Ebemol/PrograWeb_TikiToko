@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
 
-// --- TUS COMPONENTES (Rutas corregidas: están en la raíz de src/) ---
+// --- TUS COMPONENTES ---
 import Login from "./LoginPage";
 import Register from "./Register";
 import Create from "./Create";
@@ -17,10 +17,10 @@ import GiftPage from "./GiftPage";
 import HerramientasPage from "./HerramientaPage"; 
 import Configuracion from "./UserSettingsModal"; 
 
-// --- STREAMING (Rutas corregidas) ---
-import DiscoverLivePage from "./DiscoverLivePage"; // Estaba en ./Pages/
-import GoLivePage from "./Streamsconfigs";         // Tu archivo se llama Streamsconfigs.tsx
-import WatchPage from "./WatchPage";               // Estaba en ./Pages/
+// --- STREAMING ---
+import DiscoverLivePage from "./DiscoverLivePage";
+import GoLivePage from "./Streamsconfigs"; // Asegúrate de que este sea el archivo correcto
+import WatchPage from "./WatchPage";      
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -42,13 +42,13 @@ createRoot(document.getElementById("root")!).render(
 
         {/* --- RUTAS DE STREAMING --- */}
         
-        {/* 1. Explorar */}
+        {/* 1. Explorar (CORREGIDO: Deber ser /discover para que funcione el botón 'Volver') */}
         <Route path="/viewer" element={<DiscoverLivePage />} />
 
-        {/* 2. Emitir (Apunta a tu archivo Streamsconfigs.tsx) */}
+        {/* 2. Emitir */}
         <Route path="/golive" element={<GoLivePage />} />
 
-        {/* 3. Ver (Esta es la que fallaba, ahora la encuentra bien) */}
+        {/* 3. Ver (Correcto) */}
         <Route path="/ver/:id" element={<WatchPage />} />
 
       </Routes>

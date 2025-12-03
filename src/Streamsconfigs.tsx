@@ -7,7 +7,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import Header from "./Componentes/Header";
 import LiveChat from "./Componentes/Chat";
 import AuthRequired from "./Componentes/AuthRequired"; 
-import GiftOverlay from "./Componentes/GiftOverlay"; 
+import GiftOverlay from "./Componentes/GiftOverlay"; // <--- 1. IMPORTAMOS EL OVERLAY
 import useBloqueo from "../src/hooks/Bloqueo"; 
 
 const RED = "#EE1D52";
@@ -18,10 +18,10 @@ interface GiftItem {
   nombre: string;
   cost: number;
   emoji: string;
-  image?: string | null; // <--- AQUI GUARDAMOS EL BASE64
+  image?: string | null; 
 }
 
-// Regalos por defecto (sin imagen, solo emoji)
+// Regalos por defecto
 const DEFAULT_GIFTS: GiftItem[] = [
   { nombre: "Rosa", cost: 10, emoji: "🌹" },
   { nombre: "Café", cost: 25, emoji: "☕" },
@@ -62,15 +62,16 @@ const GoLivePage: React.FC = () => {
   const [newGiftName, setNewGiftName] = useState("");
   const [newGiftCost, setNewGiftCost] = useState("");
   const [newGiftEmoji, setNewGiftEmoji] = useState("🎁");
-  const [newGiftImage, setNewGiftImage] = useState<string | null>(null); // Foto temporal
+  const [newGiftImage, setNewGiftImage] = useState<string | null>(null); 
   const [showGiftsConfig, setShowGiftsConfig] = useState(false);
 
+  // Generar clave automática
   useEffect(() => {
     const randomId = "stream_" + Math.random().toString(36).substr(2, 6);
     setClaveStream(randomId);
   }, []);
 
-  // --- 1. CAPTURAR FOTO DEL REGALO ---
+  // --- LÓGICA FOTO REGALO ---
   const handleGiftImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -82,21 +83,10 @@ const GoLivePage: React.FC = () => {
     }
   };
 
-  // --- 2. AGREGAR REGALO AL ARRAY ---
+  // --- LÓGICA AGREGAR/QUITAR REGALOS ---
   const handleAddGift = () => {
     if (!newGiftName || !newGiftCost) return;
-    
-    setGifts([
-      ...gifts, 
-      { 
-        nombre: newGiftName, 
-        cost: Number(newGiftCost), 
-        emoji: newGiftEmoji,
-        image: newGiftImage // <--- AQUÍ SE GUARDA EN LA LISTA
-      }
-    ]);
-
-    // Limpiar inputs
+    setGifts([...gifts, { nombre: newGiftName, cost: Number(newGiftCost), emoji: newGiftEmoji, image: newGiftImage }]);
     setNewGiftName("");
     setNewGiftCost("");
     setNewGiftImage(null);
@@ -110,7 +100,7 @@ const GoLivePage: React.FC = () => {
     setGifts(DEFAULT_GIFTS);
   };
 
-  // --- 3. ENVIAR TODO AL BACKEND ---
+  // --- INICIAR STREAM ---
   const handleStartStream = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!titulo.trim() || !claveStream.trim()) return;
@@ -124,7 +114,7 @@ const GoLivePage: React.FC = () => {
           userId: userProfile?.id || 1,
           titulo: titulo,
           claveStream: claveStream,
-          gifts: gifts // <--- ESTO ENVÍA LA LISTA CON IMÁGENES
+          gifts: gifts 
         })
       });
 
@@ -135,6 +125,8 @@ const GoLivePage: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
+      // Si falla el back local, permitimos entrar para probar UI (Solo dev)
+      setPaso("live"); 
     } finally {
       setIsLoading(false);
     }
@@ -157,7 +149,7 @@ const GoLivePage: React.FC = () => {
   };
 
   const copiarLink = () => {
-    const link = `http://localhost:5173/ver/${claveStream}`;
+    const link = `http://localhost:5173/#/ver/${claveStream}`;
     navigator.clipboard.writeText(link);
     setCopiado(true);
     setTimeout(() => setCopiado(false), 2000);
@@ -229,7 +221,6 @@ const GoLivePage: React.FC = () => {
                                     <input placeholder="Nombre" style={{...inputStyle, padding: "6px 10px"}} value={newGiftName} onChange={e => setNewGiftName(e.target.value)} />
                                     <input type="number" placeholder="$" style={{...inputStyle, padding: "6px 10px", width: "70px"}} value={newGiftCost} onChange={e => setNewGiftCost(e.target.value)} />
                                     
-                                    {/* Botón subir imagen */}
                                     <label className="btn btn-sm d-flex align-items-center justify-content-center" style={{ background: "#1a1a1a", border: `1px solid ${WHITE_BORDER}`, color: "white", width: "40px", height: "36px", cursor: "pointer", margin: 0 }}>
                                         {newGiftImage ? <img src={newGiftImage} width="20" /> : <i className="bi bi-image"></i>}
                                         <input type="file" hidden accept="image/*" onChange={handleGiftImageChange} />
@@ -241,7 +232,7 @@ const GoLivePage: React.FC = () => {
                                 <div className="d-flex flex-wrap gap-2">
                                     {gifts.map((g, i) => (
                                         <span key={i} className="badge bg-dark border border-secondary p-2 d-flex align-items-center gap-2">
-                                            {g.image ? <img src={g.image} width="15" /> : g.emoji} 
+                                            {g.image ? <img src={g.image} width="15" alt="gift" /> : g.emoji} 
                                             {g.nombre} <small className="text-secondary">({g.cost})</small>
                                             <i className="bi bi-x text-danger" style={{ cursor: "pointer" }} onClick={() => handleRemoveGift(i)}></i>
                                         </span>
@@ -299,7 +290,10 @@ const GoLivePage: React.FC = () => {
 
             {/* Video */}
             <div className="ratio ratio-16x9" style={{ borderRadius: "12px", overflow: "hidden", flexGrow: 1, border: `1px solid ${WHITE_BORDER}`, background: "#000", position: "relative" }}>
+                
+                {/* 🔥 OVERLAY DE ANIMACIONES PARA EL STREAMER 🔥 */}
                 <GiftOverlay />
+
                 <iframe
                   src={`https://vdo.ninja/?push=${claveStream}&webcam&microphone&autostart`}
                   allow="camera; microphone; autoplay; fullscreen"
@@ -308,6 +302,7 @@ const GoLivePage: React.FC = () => {
             </div>
         </div>
 
+        {/* ZONA DERECHA (CHAT) */}
         <div className="col-lg-3" style={{ height: "100%", position: "relative", borderLeft: `1px solid ${WHITE_BORDER}` }}>
             <div style={{ backgroundColor: "#1e1e1e", height: "100%", overflow: "hidden", display: "flex", flexDirection: "column" }}>
               <div style={{ padding: "15px", borderBottom: "1px solid #333" }}>

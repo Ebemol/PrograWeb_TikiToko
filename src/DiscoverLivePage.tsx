@@ -47,20 +47,23 @@ const DiscoverLivePage: React.FC = () => {
 
     if (isAuthorized) {
         fetchStreams();
+        // Polling cada 5 segundos
         const interval = setInterval(fetchStreams, 5000);
         return () => clearInterval(interval);
     }
   }, [isAuthorized]);
 
-  // --- 3. FUNCIÓN PARA VER STREAM ---
+  // --- 3. FUNCIÓN PARA VER STREAM (SOLUCIÓN) ---
   const handleWatchStream = (stream: any) => {
-    // Priorizamos la CLAVE (que es lo que usa VDO.Ninja), si no hay, usamos ID
-    const streamId = stream.clave || stream.id;
+    // Si el stream tiene 'clave', usa eso. Si no (streams viejos), usa 'id'.
+    // Convertimos a string para asegurarnos.
+    const streamId = stream.clave ? stream.clave : stream.id.toString();
     
     if (streamId) {
         navigate(`/ver/${streamId}`);
     } else {
-        console.error("Stream sin ID válido:", stream);
+        console.error("Stream corrupto:", stream);
+        alert("Este stream no es válido.");
     }
   };
 
@@ -117,7 +120,8 @@ const DiscoverLivePage: React.FC = () => {
                         <div 
                             className="card h-100 border-0 shadow-lg stream-card overflow-hidden position-relative"
                             style={{ backgroundColor: "#1e1e1e", borderRadius: "16px", cursor: "pointer", transition: "all 0.3s" }}
-                            onClick={() => handleWatchStream(stream)} // <--- CLIC SEGURO
+                            // USAMOS LA FUNCIÓN SEGURA
+                            onClick={() => handleWatchStream(stream)} 
                         >
                             <div className="ratio ratio-16x9 bg-black">
                                 <img 
@@ -125,6 +129,7 @@ const DiscoverLivePage: React.FC = () => {
                                     alt="Thumbnail"
                                     style={{ objectFit: "cover", opacity: 0.7 }}
                                 />
+                                
                                 <div className="position-absolute top-0 start-0 m-2 badge bg-danger animate-pulse shadow">
                                     EN VIVO
                                 </div>
