@@ -1,0 +1,12 @@
+curl -X POST http://localhost:5002/stream/start \
+-H "Content-Type: application/json" \
+-d '{
+    "userId": 1,
+    "titulo": "Mi Stream de Prueba",
+    "claveStream": "gifts_test_2025",
+    "gifts": [
+        { "nombre": "Corona de Diamantes", "cost": 500, "emoji": "👑" },
+        { "nombre": "Aplauso", "cost": 10, "emoji": "👏" },
+        { "nombre": "Pizza Virtual", "cost": 150, "emoji": "🍕" }
+    ]
+}'

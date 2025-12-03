@@ -1,0 +1,7 @@
+GET http://localhost:5002/viewer
+Authorization: Bearer ine
+
+
+POST http://localhost:5002/logout
+Authorization: Bearer ine
+

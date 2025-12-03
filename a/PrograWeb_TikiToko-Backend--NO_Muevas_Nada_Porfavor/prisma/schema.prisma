@@ -1,0 +1,120 @@
+// 1. CONFIGURACIÓN DEL CLIENTE
+generator client {
+  provider = "prisma-client-js"
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------
+// 2. MODELO USER
+// ---------------------------------------------------------
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  username  String   @unique
+  email     String   @unique
+  password  String
+  dayborn   String
+  genere    String?
+  coins     Int      @default(0)
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // --- PERFIL Y CONFIGURACIÓN ---
+  avatar    String?  @db.Text
+  bio       String?  @db.Text
+  theme     String   @default("dark")
+  settings  Json?
+
+  // --- GAMEFICACIÓN ---
+  xp        Int      @default(0)
+  nivel     Int      @default(1)
+
+  // --- RELACIONES ---
+  streams          Stream[]           @relation("StreamOwner")
+  subscribers      CommunityMember[]  @relation("StreamerCommunity")
+  watchingStreamId Int?
+  watchingStream   Stream?          @relation("StreamViewers", fields: [watchingStreamId], references: [id])
+  follows          CommunityMember[]  @relation("ViewerFollows")
+  messages         Message[]
+}
+
+// ---------------------------------------------------------
+// 3. MODELO STREAM
+// ---------------------------------------------------------
+model Stream {
+  id          Int       @id @default(autoincrement())
+  titulo      String
+  clave       String?
+  isLive      Boolean   @default(false)
+  hearts      Int       @default(0)
+
+// 🔥 NUEVO: Duración del stream en segundos (solo se llena al finalizar)
+  durationSeconds Int     @default(0)
+
+  userId      Int
+  streamer    User      @relation("StreamOwner", fields: [userId], references: [id])
+ 
+  viewers     User[]    @relation("StreamViewers")
+  messages    Message[]
+  gifts       Gift[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+// ---------------------------------------------------------
+// 4. MODELO GIFT (Editado)
+// ---------------------------------------------------------
+model Gift {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @db.VarChar(50)
+  costo     Int
+  emoji     String   @db.VarChar(10)
+ 
+  // 🔥 Campo para guardar la foto del regalo personalizado
+  image     String?  @db.Text
+
+  streamId  Int
+  stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------
+// 5. MODELO MESSAGE
+// ---------------------------------------------------------
+model Message {
+  id        Int      @id @default(autoincrement())
+  texto     String   @db.Text
+  userId    Int
+  streamId  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
+
+  @@index([streamId])
+}
+
+// ---------------------------------------------------------
+// 6. MODELO COMMUNITY MEMBER
+// ---------------------------------------------------------
+model CommunityMember {
+  id          Int      @id @default(autoincrement())
+  viewerId    Int
+  viewer      User     @relation("ViewerFollows", fields: [viewerId], references: [id])
+  streamerId  Int
+  streamer    User     @relation("StreamerCommunity", fields: [streamerId], references: [id])
+
+  isFollowing Boolean  @default(false)
+  xp          Int      @default(0)
+  nivel       Int      @default(1)
+  lastActive  DateTime @default(now())
+
+  @@unique([viewerId, streamerId])
+}

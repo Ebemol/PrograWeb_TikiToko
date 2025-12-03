@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "user" ADD COLUMN     "mensajes_enviados" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "nivel" INTEGER NOT NULL DEFAULT 1;
