@@ -1,6 +1,6 @@
 {
   "name": "login_app",
-  "homepage": "https://Ebemol.github.io/PrograWeb_TikiToko/",
+  "homepage": "https://Ebemol.github.io/PrograWeb_TikiToko/", 
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,8 +9,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "predeploy": "npm run build", 
+    "deploy": "gh-pages -d dist" 
   },
   "dependencies": {
     "axios": "^1.13.2",

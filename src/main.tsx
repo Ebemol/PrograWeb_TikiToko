@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, HashRouter, Route, Routes } from "react-router-dom";
+// Solo importamos BrowserRouter y las otras dependencias
+import { BrowserRouter, Route, Routes } from "react-router-dom"; 
 import "bootstrap/dist/css/bootstrap.css";
 
 // --- TUS COMPONENTES ---
@@ -21,12 +22,12 @@ import Configuracion from "./UserSettingsModal";
 import DiscoverLivePage from "./DiscoverLivePage";
 import GoLivePage from "./Streamsconfigs"; 
 import WatchPage from "./WatchPage";
-import GuestPage from "./GuestPage"; // <--- 1. NUEVO IMPORT (Asegúrate de que la ruta sea correcta)
+import GuestPage from "./GuestPage"; 
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter basename="/PrograWeb_TikiToko">
-    <HashRouter>
+    {/* Dejamos solo BrowserRouter con el basename */}
+    <BrowserRouter basename="/PrograWeb_TikiToko"> 
       <Routes>
         {/* Rutas Generales */}
         <Route path="/" element={<Login />} />
@@ -43,21 +44,12 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/stream" element={<StreamPage />} />
 
         {/* --- RUTAS DE STREAMING --- */}
-        
-        {/* 1. Explorar */}
         <Route path="/viewer" element={<DiscoverLivePage />} />
-
-        {/* 2. Emitir */}
         <Route path="/golive" element={<GoLivePage />} />
-
-        {/* 3. Ver */}
         <Route path="/ver/:id" element={<WatchPage />} />
-
-        {/* 4. Invitado (NUEVA RUTA) */}
         <Route path="/guest/:id" element={<GuestPage />} />
 
       </Routes>
-    </HashRouter>
     </BrowserRouter>
   </StrictMode>
 );
