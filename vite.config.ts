@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // Configuración 'base' para el despliegue en GitHub Pages:
-  base: "/PrograWeb_TikiToko/"
+  base: "/"
 })
