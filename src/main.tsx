@@ -1,10 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-// Solo importamos BrowserRouter y las otras dependencias
 import { BrowserRouter, Route, Routes } from "react-router-dom"; 
 import "bootstrap/dist/css/bootstrap.css";
 
-// --- TUS COMPONENTES ---
+// --- COMPONENTES ---
 import Login from "./LoginPage";
 import Register from "./Register";
 import Create from "./Create";
@@ -26,8 +25,7 @@ import GuestPage from "./GuestPage";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {/* Dejamos solo BrowserRouter con el basename */}
-    <BrowserRouter basename="/PrograWeb_TikiToko"> 
+    <BrowserRouter>
       <Routes>
         {/* Rutas Generales */}
         <Route path="/" element={<Login />} />
@@ -43,12 +41,11 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/settings" element={<Configuracion />} />
         <Route path="/stream" element={<StreamPage />} />
 
-        {/* --- RUTAS DE STREAMING --- */}
+        {/* STREAM */}
         <Route path="/viewer" element={<DiscoverLivePage />} />
         <Route path="/golive" element={<GoLivePage />} />
         <Route path="/ver/:id" element={<WatchPage />} />
         <Route path="/guest/:id" element={<GuestPage />} />
-
       </Routes>
     </BrowserRouter>
   </StrictMode>
