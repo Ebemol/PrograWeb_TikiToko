@@ -102,7 +102,7 @@ const GoLivePage: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const resp = await fetch("https://prograweb-tikitoko-backend-1.onrender.com/stream/start", {
+      const resp = await fetch("https://prograweb-tikitoko-backend-lw2q.onrender.com/stream/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,7 +128,7 @@ const GoLivePage: React.FC = () => {
   const handleStopStream = async () => {
     if (!window.confirm("¿Finalizar transmisión?")) return;
     try {
-        await fetch("https://prograweb-tikitoko-backend-1.onrender.com/stream/end", {
+        await fetch("https://prograweb-tikitoko-backend-lw2q.onrender.com/stream/end", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId: userProfile?.id })

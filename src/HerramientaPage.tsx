@@ -12,7 +12,7 @@ import Header from "./Componentes/Header";
 import useBloqueo from "../src/hooks/Bloqueo";
 
 const RED = "#EE1D52";
-const BACKEND_URL = "https://prograweb-tikitoko-backend-1.onrender.com"; 
+const BACKEND_URL = "https://prograweb-tikitoko-backend-lw2q.onrender.com"; 
 
 // Tipos para los datos del backend
 interface UserStats {

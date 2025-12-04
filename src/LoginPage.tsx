@@ -25,7 +25,7 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch("https://prograweb-tikitoko-backend-1.onrender.com/login", {
+      const response = await fetch("https://prograweb-tikitoko-backend-lw2q.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

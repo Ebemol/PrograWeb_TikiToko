@@ -53,7 +53,7 @@ const Create = () => {
     setIsLoading(true);
     
     try {
-      const response = await fetch("https://prograweb-tikitoko-backend-1.onrender.com/create", {
+      const response = await fetch("https://prograweb-tikitoko-backend-lw2q.onrender.com/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

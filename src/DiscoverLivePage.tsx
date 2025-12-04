@@ -33,7 +33,7 @@ const DiscoverLivePage: React.FC = () => {
   useEffect(() => {
     const fetchStreams = async () => {
       try {
-        const res = await fetch("https://prograweb-tikitoko-backend-1.onrender.com/streams/live");
+        const res = await fetch("https://prograweb-tikitoko-backend-lw2q.onrender.com/streams/live");
         if (res.ok) {
           const data = await res.json();
           setActiveStreams(data);

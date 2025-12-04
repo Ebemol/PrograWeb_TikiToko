@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 // Conexión al socket
-const socket = io("https://prograweb-tikitoko-backend-1.onrender.com");
+const socket = io("https://prograweb-tikitoko-backend-lw2q.onrender.com");
 
 interface GiftEvent {
     id: number; 

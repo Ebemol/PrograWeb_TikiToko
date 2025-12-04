@@ -117,7 +117,7 @@ const PayPage: React.FC = () => {
             return;
         }
 
-        const response = await fetch("https://prograweb-tikitoko-backend-1.onrender.com/buy-coins", {
+        const response = await fetch("https://prograweb-tikitoko-backend-lw2q.onrender.com/buy-coins", {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",

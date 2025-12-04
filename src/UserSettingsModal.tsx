@@ -75,7 +75,7 @@ const Configuracion: React.FC = () => {
       setUserId(uLocal.id);
 
       try {
-        const res = await fetch(`https://prograweb-tikitoko-backend-1.onrender.com/user/${uLocal.id}`);
+        const res = await fetch(`https://prograweb-tikitoko-backend-lw2q.onrender.com/user/${uLocal.id}`);
         const data = await res.json();
         
         if (data.user) {
@@ -105,7 +105,7 @@ const Configuracion: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch("https://prograweb-tikitoko-backend-1.onrender.com/update-profile", {
+      const res = await fetch("https://prograweb-tikitoko-backend-lw2q.onrender.com/update-profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

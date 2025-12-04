@@ -12,7 +12,7 @@ import GiftOverlay from "./Componentes/GiftOverlay";
 import useBloqueo from "./hooks/Bloqueo"; 
 
 const WHITE_BORDER = "rgba(255, 255, 255, 0.15)";
-const BACKEND_URL = "https://prograweb-tikitoko-backend-1.onrender.com"; 
+const BACKEND_URL = "https://prograweb-tikitoko-backend-lw2q.onrender.com"; 
 
 // Regalos de respaldo
 const DEFAULT_GIFTS_FALLBACK = [
